@@ -9,6 +9,7 @@ import {
   MenuItem
 } from '@mui/material';
 import Header from "@/app/common/ui/Header";
+import { SelectChangeEvent } from '@mui/material/Select'; // Import SelectChangeEvent for handling Select
 import styles from './Signup.module.css'; // Module CSS for styling
 
 interface FormData {
@@ -52,7 +53,7 @@ export default function Signup() {
 
   const handleBack = () => setStep((prev) => prev - 1);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement |  { name?: string; value: unknown }> | SelectChangeEvent<string>) => {
     setFormData({ ...formData, [e.target.name as string]: e.target.value });
   };
 
