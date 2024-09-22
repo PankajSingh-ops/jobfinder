@@ -1,0 +1,98 @@
+/* General Header Styling */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #0073e6; /* Solid professional blue */
+    color: white;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Logo Styling */
+.logo {
+    flex-shrink: 0;
+}
+
+/* Navigation Links */
+.nav ul {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+}
+
+.nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+.spanLink{
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease; 
+}
+.spanLink:hover{
+    color: #ffdd00; /* New hover color (brighter) */
+    cursor: pointer;
+}
+
+.nav ul li a:hover {
+    color: #ffdd00; /* New hover color (brighter) */
+}
+
+/* Burger Menu Icon */
+.burger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.burger .line {
+    width: 30px;
+    height: 4px;
+    background-color: white;
+    margin: 4px;
+    transition: 0.3s ease-in-out;
+}
+
+/* Burger Menu Open Animation */
+.line1 {
+    transform: rotate(-45deg) translate(-6px, 6px);
+}
+
+.line2 {
+    opacity: 0;
+}
+
+.line3 {
+    transform: rotate(45deg) translate(-6px, -6px);
+}
+
+/* For Mobile Screens */
+@media (max-width: 768px) {
+    .nav ul {
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        padding: 20px;
+        background-color: #0073e6; /* Solid professional blue */
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Show menu when burger is clicked */
+    .nav.open ul {
+        display: flex;
+    }
+
+    .burger {
+        display: flex;
+    }
+}
