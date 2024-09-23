@@ -11,6 +11,7 @@ import {
 import Header from "@/app/common/ui/Header";
 import { SelectChangeEvent } from '@mui/material/Select'; // Import SelectChangeEvent for handling Select
 import styles from './Signup.module.css'; // Module CSS for styling
+import { useRouter } from 'next/navigation';
 
 interface FormData {
   email: string;
@@ -26,6 +27,7 @@ interface FormData {
 export default function Signup() {
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState<string>(''); // 'employer' or 'jobseeker'
+  const router=useRouter()
   
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -81,6 +83,7 @@ export default function Signup() {
         const dataToSend = { ...formData, userType }; // Include userType in the formData
         const response = await axios.post('/api/auth/signup', dataToSend);
         console.log('Form submitted successfully:', response.data);
+        router.push('/auth/login')
       } catch (error) {
         console.error('Form submission error:', error);
       }
@@ -181,6 +184,17 @@ export default function Signup() {
               margin="normal"
               required
             />
+            {userType==='employer'&&
+            <TextField
+              label="Enter your Company Name"
+              name="companyName"
+              type="text"
+              value={formData.companyName}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+}
  <FormControl fullWidth margin="normal">
               <Select
                 name="gender"
