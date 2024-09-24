@@ -75,6 +75,9 @@
       flex-direction: column;
     }
   
+    .optionBox{
+      max-width: 80%;
+    }
     .roleBox {
       margin-bottom: 20px;
     }

@@ -1,4 +1,4 @@
-"use client"; // Ensure it's client-side
+"use client";
 
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -6,7 +6,9 @@ import { TextField, Button, Typography, Container, Box, Grid, Link, Avatar, Circ
 import { LockOutlined as LockIcon } from '@mui/icons-material';
 import { Formik, Form, Field,} from 'formik';
 import * as Yup from 'yup';
-import Header from '@/app/common/ui/Header'; // Adjust this path based on your project structure
+import Header from '@/app/common/ui/Header';
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/slices/authSlice';
 
 // Yup Validation Schema
 const validationSchema = Yup.object({
@@ -17,6 +19,8 @@ const validationSchema = Yup.object({
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const dispatch = useDispatch();
+
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
@@ -25,7 +29,8 @@ export default function Login() {
     try {
       const response = await axios.post('/api/auth/login', values);
       console.log('Login successful:', response.data);
-      // Redirect or handle successful login here
+      dispatch(login(response.data.user));
+
     } catch (error) {
       setError('Invalid email or password.');
       console.error(error);
@@ -112,7 +117,7 @@ export default function Login() {
 
                 <Grid container>
                   <Grid item xs>
-                    <Link href="#" variant="body2">
+                    <Link href="/auth/forgot_password" variant="body2">
                       Forgot password?
                     </Link>
                   </Grid>

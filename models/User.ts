@@ -11,6 +11,9 @@ interface IUser extends Document {
   companyName?: string; // Optional for job seekers
   userType: 'employer' | 'jobseeker'; // Enforced user types
   agree: boolean;
+  otp?:string;
+  otpCreatedAt?:Date;
+
 }
 
 // Create the User schema
@@ -49,6 +52,14 @@ const UserSchema = new mongoose.Schema<IUser>({
   agree: {
     type: Boolean,
     required: true,
+  },
+  otp: { // Store the OTP
+    type: String,
+    default: undefined,
+  },
+  otpCreatedAt: { // Store when the OTP was created
+    type: Date,
+    default: undefined,
   },
 }, { timestamps: true }); // Optional: includes createdAt and updatedAt fields
 

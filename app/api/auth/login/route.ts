@@ -32,9 +32,18 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: 'Invalid email or password' }, { status: 400 });
         }
 
-        // If needed, you can generate a token here (e.g., JWT) for authentication
+        const userData = {
+            id: user._id,
+            email: user.email,
+            firstname: user.firstName,
+            lastname: user.lastName,
+            userType: user.userType,
+            gender:user.gender,
+            companyname: user.companyName,
+        };
+
         console.log('Login successful for user:', email);
-        return NextResponse.json({ message: 'Login successful' }, { status: 200 });
+        return NextResponse.json({ message: 'Login successful', user: userData }, { status: 200 });
 
     } catch (error) {
         console.error('Error during login process:', error);

@@ -9,8 +9,8 @@ import {
   MenuItem
 } from '@mui/material';
 import Header from "@/app/common/ui/Header";
-import { SelectChangeEvent } from '@mui/material/Select'; // Import SelectChangeEvent for handling Select
-import styles from './Signup.module.css'; // Module CSS for styling
+import { SelectChangeEvent } from '@mui/material/Select';
+import styles from './Signup.module.css';
 import { useRouter } from 'next/navigation';
 
 interface FormData {
@@ -26,9 +26,9 @@ interface FormData {
 
 export default function Signup() {
   const [step, setStep] = useState(1);
-  const [userType, setUserType] = useState<string>(''); // 'employer' or 'jobseeker'
-  const router=useRouter()
-  
+  const [userType, setUserType] = useState<string>(''); 
+  const router = useRouter();
+
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -39,7 +39,8 @@ export default function Signup() {
     companyName: '',
     agree: false,
   });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({}); // Track errors
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleNext = () => {
     if (step === 1) {
@@ -49,13 +50,12 @@ export default function Signup() {
       }
       setErrors({});
     }
-    // Proceed to the next step
     setStep((prev) => prev + 1);
   };
 
   const handleBack = () => setStep((prev) => prev - 1);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement |  { name?: string; value: unknown }> | SelectChangeEvent<string>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<string>) => {
     setFormData({ ...formData, [e.target.name as string]: e.target.value });
   };
 
@@ -65,9 +65,16 @@ export default function Signup() {
 
   const validateFields = () => {
     const newErrors: { [key: string]: string } = {};
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     if (!formData.email) newErrors.email = 'Email is required';
+    else if (!emailPattern.test(formData.email)) newErrors.email = 'Please enter a valid email';
+    
     if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters long';
+    
     if (formData.password !== formData.rePassword) newErrors.rePassword = 'Passwords do not match';
+    
     if (!formData.firstName) newErrors.firstName = 'First name is required';
     if (!formData.lastName) newErrors.lastName = 'Last name is required';
     if (!formData.gender) newErrors.gender = 'Gender is required';
@@ -80,16 +87,15 @@ export default function Signup() {
   const handleSubmit = async () => {
     if (validateFields()) {
       try {
-        const dataToSend = { ...formData, userType }; // Include userType in the formData
+        const dataToSend = { ...formData, userType }; 
         const response = await axios.post('/api/auth/signup', dataToSend);
         console.log('Form submitted successfully:', response.data);
-        router.push('/auth/login')
+        router.push('/auth/login');
       } catch (error) {
         console.error('Form submission error:', error);
       }
     }
   };
-  
 
   return (
     <>
@@ -124,10 +130,10 @@ export default function Signup() {
         
         {step === 2 && (
           <div className={styles.form}>
-              <Typography variant="h6" className={styles.legend}>
+            <Typography variant="h6" className={styles.legend}>
               Enter your credentials
             </Typography>
-               <TextField
+            <TextField
               label="First Name"
               name="firstName"
               value={formData.firstName}
@@ -159,6 +165,7 @@ export default function Signup() {
               fullWidth
               margin="normal"
               required
+              type="email"
             />
             <TextField
               label="Password"
@@ -184,18 +191,18 @@ export default function Signup() {
               margin="normal"
               required
             />
-            {userType==='employer'&&
-            <TextField
-              label="Enter your Company Name"
-              name="companyName"
-              type="text"
-              value={formData.companyName}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
-}
- <FormControl fullWidth margin="normal">
+            {userType === 'employer' && (
+              <TextField
+                label="Enter your Company Name"
+                name="companyName"
+                type="text"
+                value={formData.companyName}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+            )}
+            <FormControl fullWidth margin="normal">
               <Select
                 name="gender"
                 value={formData.gender}
@@ -221,7 +228,6 @@ export default function Signup() {
               label="I agree to the terms and conditions"
             />
             {errors.agree && <Typography color="error">{errors.agree}</Typography>}
-
             <div className={styles.buttonGroup}>
               <Button variant="contained" onClick={handleBack}>
                 Back
