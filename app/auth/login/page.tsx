@@ -9,6 +9,7 @@ import * as Yup from 'yup';
 import Header from '@/app/common/ui/Header';
 import { useDispatch } from 'react-redux';
 import { login } from '@/store/slices/authSlice';
+import { useRouter } from 'next/navigation';
 
 // Yup Validation Schema
 const validationSchema = Yup.object({
@@ -20,6 +21,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const dispatch = useDispatch();
+  const router=useRouter()
 
 
   const handleLogin = async (values: { email: string; password: string }) => {
@@ -30,6 +32,7 @@ export default function Login() {
       const response = await axios.post('/api/auth/login', values);
       console.log('Login successful:', response.data);
       dispatch(login(response.data.user));
+      router.push('/')
 
     } catch (error) {
       setError('Invalid email or password.');

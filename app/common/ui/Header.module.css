@@ -3,13 +3,67 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
     background-color: #0073e6; /* Solid professional blue */
     color: white;
     position: relative;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding-right: 25px;
+    padding-left: 20px;
+    height: 6rem;
 }
 
+/* Profile Container */
+.profileContainer {
+    position: relative;
+    cursor: pointer;
+}
+
+.profileImage {
+    border-radius: 50%; /* Round shape */
+    width: 60px;
+    height: 60px;
+    object-fit: cover; /* Ensure the image fits within the round frame */
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: absolute;
+    top: 70px; /* Adjust based on profile image size */
+    right: 0;
+    background-color: #0073e6;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+    width: 150px; /* Fixed width for dropdown */
+}
+
+.dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown ul li {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown ul li:hover {
+    background-color: #f0f0f0;
+}
+.comapniesandjobUl{
+    display: flex;
+    align-items: center;
+}
+.icon {
+    margin-right: 10px;
+}
 
 /* Logo Styling */
 .logo {
@@ -29,13 +83,22 @@
     font-weight: bold;
     transition: color 0.3s ease;
 }
-.spanLink{
+
+.spanLink {
     color: white;
     text-decoration: none;
     font-weight: bold;
-    transition: color 0.3s ease; 
+    transition: color 0.3s ease;
 }
-.spanLink:hover{
+
+.spanLink1 {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.spanLink:hover {
     color: #ffdd00; /* New hover color (brighter) */
     cursor: pointer;
 }
@@ -95,4 +158,16 @@
     .burger {
         display: flex;
     }
+
+    /* Hide profile image in mobile view */
+    .profileContainer {
+        display: none;
+    }
 }
+
+/* Hover Effect for Profile and Signout */
+.dropdown ul li:hover {
+    background-color: #ffdd00; /* Brighten hover for dropdown */
+    color: white; /* Optional: change text color */
+}
+
