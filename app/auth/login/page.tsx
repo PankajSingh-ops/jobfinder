@@ -32,7 +32,7 @@ export default function Login() {
       const response = await axios.post('/api/auth/login', values);
       console.log('Login successful:', response.data);
       dispatch(login(response.data.user));
-      router.push('/')
+      router.push('/profile')
 
     } catch (error) {
       setError('Invalid email or password.');
@@ -82,7 +82,6 @@ export default function Login() {
                   name="email"
                   autoComplete="email"
                   autoFocus
-                  // Show error only if the field has been touched and there's an error
                   helperText={touched.email && errors.email ? errors.email : ''}
                   error={touched.email && Boolean(errors.email)}
                 />
@@ -96,7 +95,6 @@ export default function Login() {
                   type="password"
                   id="password"
                   autoComplete="current-password"
-                  // Show error only if the field has been touched and there's an error
                   helperText={touched.password && errors.password ? errors.password : ''}
                   error={touched.password && Boolean(errors.password)}
                 />
