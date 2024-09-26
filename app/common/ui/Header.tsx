@@ -85,13 +85,13 @@ export default function Header() {
               {dropdownOpen && (
                 <div className={styles.dropdown}>
                   <ul>
-                    <li>
+                    <li onClick={()=>router.push('/profile')}>
                       <AccountCircleIcon className={styles.icon} />
-                      <span className={styles.spanLink1} onClick={()=>router.push('/profile')}>Profile</span>
+                      <span className={styles.spanLink1}>Profile</span>
                     </li>
-                    <li>
+                    <li onClick={handleLogout}>
                       <LogoutIcon className={styles.icon} />
-                      <span className={styles.spanLink1} onClick={handleLogout}>Signout</span>
+                      <span className={styles.spanLink1}>Signout</span>
                     </li>
                   </ul>
                 </div>

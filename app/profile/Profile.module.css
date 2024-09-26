@@ -2,3 +2,30 @@
     width: 80%;
     margin: auto;
 }
+.custom-radio-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .custom-radio {
+    padding: 10px 15px;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .custom-radio:hover {
+    border-color: #007bff;
+    color: #007bff;
+  }
+  
+  .custom-radio.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  

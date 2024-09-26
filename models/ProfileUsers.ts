@@ -1,10 +1,14 @@
-// models/ProfileUsers.ts
 import mongoose, { Document, Model } from 'mongoose';
 
 interface IEducation {
   degree?: string;
   institution?: string;
   year?: string;
+}
+
+interface ICertificate {
+  cert: string; // Store file path or Base64 string
+  name: string; // Store original file name
 }
 
 interface IProfileUsers extends Document {
@@ -17,9 +21,19 @@ interface IProfileUsers extends Document {
   linkedin?: string;
   phone?: string;
   bio?: string;
-  resume?: Buffer; // Handle as needed
-  certificates?: Buffer[]; // Handle as needed
-  profilePic?: Buffer; // Handle as needed
+  resume?: string; // Handle as needed (Base64 or file path)
+  certificates?: ICertificate[]; // Store file paths and names
+  profilePic?: string; // Handle as needed (Base64 or file path)
+  maritalStatus?: string; // New field
+  category?: string; // New field
+  differentlyAbled?: string; // New field
+  careerBreak?: string; // New field
+  permanentAddress?: string; // New field
+  postalOffice?: string; // New field
+  hometown?: string; // New field
+  pincode?: string; // New field
+  softSkills?: { [key: string]: number }; // Updated type
+  ITSkills?: { skill: string; experienceMonths: number; experienceYears: number }[]; // Updated type
   education?: {
     class10?: IEducation;
     class12?: IEducation;
@@ -43,9 +57,33 @@ const ProfileUsersSchema = new mongoose.Schema<IProfileUsers>({
   linkedin: String,
   phone: String,
   bio: String,
-  resume: Buffer,
-  certificates: [Buffer],
-  profilePic: Buffer,
+  resume: String, // Store the file path as string or Base64
+  certificates: [
+    {
+      cert: String, // Store the file path or Base64
+      name: String, // Store the original file name
+    },
+  ],
+  profilePic: String, // Store the file path as string or Base64
+  maritalStatus: String, // New field
+  category: String, // New field
+  differentlyAbled: String, // New field
+  careerBreak: String, // New field
+  permanentAddress: String, // New field
+  postalOffice: String, // New field
+  hometown: String, // New field
+  pincode: String, // New field
+  softSkills: {
+    type: Map,
+    of: Number, // Store soft skills as a map with skill names and values
+  },
+  ITSkills: [
+    {
+      skill: String,
+      experienceMonths: Number,
+      experienceYears: Number,
+    },
+  ],
   education: {
     class10: {
       degree: String,

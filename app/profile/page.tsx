@@ -19,6 +19,7 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Slider,
 } from "@mui/material";
 import Header from "../common/ui/Header";
 import styles from "./Profile.module.css";
@@ -43,6 +44,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import WcIcon from '@mui/icons-material/Wc';
+import GitHub from "@mui/icons-material/GitHub";
 
 type EducationLevel =
   | "class10"
@@ -57,16 +59,38 @@ function ProfilePage() {
 
   // State for editing dialog
   const [open, setOpen] = useState(false);
+  
   const [profileData, setProfileData] = useState({
     fullname: user?.firstname + " " + user?.lastname,
     email: user?.email,
+    userId:user?.id,
     country: "",
     experience: "Fresher",
     joinIn: "10 days",
     linkedin: "",
+    github:"",
     phone: "",
     bio: "",
     dob:null,
+    maritalStatus: "", // Added for marital status radio options
+  category: "", // Added for category selection (General, OBC, etc.)
+  differentlyAbled: "", // Added for Differently Abled status (Yes/No)
+  careerBreak: "", // Added for Career Break status (Yes/No)
+  permanentAddress: "", // Added for address details
+  postalOffice: "",
+  hometown: "",
+  pincode: "",
+  softSkills: {
+    communication: 0,
+    leadership: 0,
+    problemSolving: 0,
+    workEthic: 0,
+    timeManagement: 0,
+    teamwork: 0,
+  },
+  ITSkills: [
+    { skill: "", experienceMonths: 0, experienceYears: 0 }, // Initialize with one empty skill entry
+  ],
     education: {
       class10: { degree: "10th Class", institution: "", year: null as number | null },
       class12: { degree: "12th Class", institution: "", year: null as number | null },
@@ -75,9 +99,9 @@ function ProfilePage() {
       diploma: { degree: "Diploma", institution: "", year: null as number | null },
     },
   });
-  const [resume, setResume] = useState<File | null>(null);
-  const [certificates, setCertificates] = useState<File | null>(null);
-  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [resume, setResume] = useState<string | null>(null);
+  const [certificates, setCertificates] = useState<string | null>(null);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
   const [dialogText, setDialogText]=useState('')
 
@@ -141,27 +165,77 @@ function ProfilePage() {
     const { name, value } = e.target as HTMLInputElement | HTMLTextAreaElement;
     setProfileData({ ...profileData, [name]: value });
   };
+  const handleRadioChange = (field: keyof typeof profileData, value: string) => {
+    setProfileData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof typeof profileData) => {
+    setProfileData((prevData) => ({
+      ...prevData,
+      [field]: e.target.value,
+    }));
+  };
+  
+  
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
-  ) => {
+) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === "resume") {
-        setResume(file);
-      } else {
-        setCertificates(file);
-      }
-    }
-  };
+        // Convert the file to Base64 and store it
+        convertToBase64(file).then((base64) => {
+          if (typeof base64 === 'string') { // Check if base64 is a string
 
-  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setProfilePic(file);
+            if (type === "resume") {
+                setResume(base64); // Store Base64 string for resume
+            } else {
+                setCertificates(base64); // Store Base64 string for certificates
+            }
+          }
+        });
     }
-  };
+};
+
+const handleSliderChange = (field: string) => (event: Event, value: number | number[]) => {
+  // If you're only using a single slider, you can assume `value` will be a number.
+  const newValue = Array.isArray(value) ? value[0] : value;
+
+  setProfileData((prevData) => ({
+    ...prevData,
+    softSkills: {
+      ...prevData.softSkills,
+      [field]: newValue,
+    },
+  }));
+};
+
+
+
+const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+      // Convert the profile picture to Base64 and store it
+      convertToBase64(file).then((base64) => {
+          if (typeof base64 === 'string') { // Ensure base64 is a string
+              setProfilePic(base64); // Store Base64 string for profile picture
+          }
+      });
+  }
+};
+
+  const convertToBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result); // Return Base64 string
+        reader.onerror = (error) => reject(error); // Handle error
+    });
+};
   const handlePhoneChange = (value: string) => {
     setProfileData({ ...profileData, phone: value });
   };
@@ -182,6 +256,49 @@ function ProfilePage() {
     cardRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
   };
 
+
+
+  const addSkill = () => {
+    setProfileData((prevData) => ({
+      ...prevData,
+      ITSkills: [...prevData.ITSkills, { skill: "", experienceMonths: 0, experienceYears: 0 }],
+    }));
+  };
+
+  const removeSkill = (index:number) => {
+    setProfileData((prevData) => {
+      const updatedSkills = [...prevData.ITSkills];
+      updatedSkills.splice(index, 1); // Remove skill at specified index
+      return {
+        ...prevData,
+        ITSkills: updatedSkills,
+      };
+    });
+  };
+
+  type SkillField = 'skill' | 'experienceMonths' | 'experienceYears';
+
+const handleSkillChange = (
+    index: number,
+    field: SkillField, // Use a union type for field
+    value: string | number // Value can be either string or number
+) => {
+    setProfileData((prevData) => {
+        const updatedSkills = [...prevData.ITSkills];
+
+        // Update the corresponding field based on the field name
+        if (field === 'experienceMonths' || field === 'experienceYears') {
+            updatedSkills[index][field] = Number(value); // Convert to number for experience fields
+        } else {
+            updatedSkills[index][field] = value as string; // Otherwise treat as string
+        }
+
+        return {
+            ...prevData,
+            ITSkills: updatedSkills,
+        };
+    });
+};
   const handleSave = async () => {
     const formData = new FormData();
   
@@ -199,6 +316,27 @@ function ProfilePage() {
     formData.append("linkedin", profileData.linkedin || "");
     formData.append("phone", profileData.phone || "");
     formData.append("bio", profileData.bio || "");
+    formData.append("github",profileData.github);
+    formData.append("userId", profileData.userId || "");
+    formData.append("maritalStatus", profileData.maritalStatus || "");
+  formData.append("category", profileData.category || "");
+  formData.append("differentlyAbled", profileData.differentlyAbled || "");
+  formData.append("careerBreak", profileData.careerBreak || "");
+  formData.append("permanentAddress", profileData.permanentAddress || "");
+  formData.append("postalOffice", profileData.postalOffice || "");
+  formData.append("hometown", profileData.hometown || "");
+  formData.append("pincode", profileData.pincode || "");
+  Object.entries(profileData.softSkills).forEach(([skill, value]) => {
+    formData.append(`softSkills[${skill}]`, value.toString() || "0");
+  });
+  
+  // Append IT skills
+  profileData.ITSkills.forEach((itSkill, index) => {
+    formData.append(`ITSkills[${index}][skill]`, itSkill.skill || "");
+    formData.append(`ITSkills[${index}][experienceMonths]`, itSkill.experienceMonths.toString() || "0");
+    formData.append(`ITSkills[${index}][experienceYears]`, itSkill.experienceYears.toString() || "0");
+  });
+
   
     // Explicitly define the union of education keys
     type EducationLevel = "class10" | "class12" | "graduation" | "postGraduation" | "diploma";
@@ -372,6 +510,12 @@ function ProfilePage() {
                     <LinkedInIcon sx={{ mr: 1 }} />
                     <Typography variant="body2">
                       LinkedIn: {profileData.linkedin}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    <GitHub sx={{ mr: 1 }} />
+                    <Typography variant="body2">
+                      GitHub: {profileData.github}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -716,6 +860,214 @@ function ProfilePage() {
           </LocalizationProvider>
         </DialogContent>
 }
+{dialogText === "Add Personal Details" && (
+        <DialogContent>
+          {/* Marital Status */}
+          <Typography variant="h6">Marital Status</Typography>
+          <div className={styles["custom-radio-group"]}>
+            {["Single", "Married", "Widowed", "Divorced", "Other"].map((status) => (
+              <div
+                key={status}
+                className={`${styles["custom-radio"]} ${
+                  profileData.maritalStatus === status ? styles["selected"] : ""
+                }`}
+                onClick={() => handleRadioChange("maritalStatus", status)}
+              >
+                {status}
+              </div>
+            ))}
+          </div>
+
+          {/* Category */}
+          <Typography variant="h6">Category</Typography>
+          <div className={styles["custom-radio-group"]}>
+            {["General", "Scheduled Caste", "Scheduled Tribe", "OBC", "Others"].map((category) => (
+              <div
+                key={category}
+                className={`${styles["custom-radio"]} ${
+                  profileData.category === category ? styles["selected"] : ""
+                }`}
+                onClick={() => handleRadioChange("category", category)}
+              >
+                {category}
+              </div>
+            ))}
+          </div>
+
+          {/* Differently Abled */}
+          <Typography variant="h6">Are you differently abled?</Typography>
+          <div className={styles["custom-radio-group"]}>
+            {["Yes", "No"].map((abled) => (
+              <div
+                key={abled}
+                className={`${styles["custom-radio"]} ${
+                  profileData.differentlyAbled === abled ? styles["selected"] : ""
+                }`}
+                onClick={() => handleRadioChange("differentlyAbled", abled)}
+              >
+                {abled}
+              </div>
+            ))}
+          </div>
+
+          {/* Career Break */}
+          <Typography variant="h6">Have you taken a career break?</Typography>
+          <div className={styles["custom-radio-group"]}>
+            {["Yes", "No"].map((careerBreak) => (
+              <div
+                key={careerBreak}
+                className={`${styles["custom-radio"]} ${
+                  profileData.careerBreak === careerBreak ? styles["selected"] : ""
+                }`}
+                onClick={() => handleRadioChange("careerBreak", careerBreak)}
+              >
+                {careerBreak}
+              </div>
+            ))}
+          </div>
+
+          {/* Address Section */}
+          <Typography variant="h6">Permanent Address</Typography>
+          <TextField
+            margin="dense"
+            name="permanentAddress"
+            label="Permanent Address"
+            fullWidth
+            value={profileData.permanentAddress}
+            onChange={(e) => handleInputChange(e, "permanentAddress")}
+          />
+
+          <TextField
+            margin="dense"
+            name="postalOffice"
+            label="Postal Office"
+            fullWidth
+            value={profileData.postalOffice}
+            onChange={(e) => handleInputChange(e, "postalOffice")}
+          />
+
+          <TextField
+            margin="dense"
+            name="hometown"
+            label="Hometown"
+            fullWidth
+            value={profileData.hometown}
+            onChange={(e) => handleInputChange(e, "hometown")}
+          />
+
+          <TextField
+            margin="dense"
+            name="pincode"
+            label="Pincode"
+            fullWidth
+            value={profileData.pincode}
+            onChange={(e) => handleInputChange(e, "pincode")}
+          />
+        </DialogContent>
+      )}
+      
+      {dialogText === "Add Soft Skills" && (
+  <DialogContent>
+    <Typography variant="h6">Good Communication and Interpersonal Skills</Typography>
+    <Slider
+      value={profileData.softSkills.communication}
+      onChange={handleSliderChange("communication")}
+      aria-labelledby="communication-slider"
+      min={0}
+      max={10}
+      valueLabelDisplay="on"
+    />
+    
+    <Typography variant="h6">Leadership</Typography>
+    <Slider
+      value={profileData.softSkills.leadership}
+      onChange={handleSliderChange("leadership")}
+      aria-labelledby="leadership-slider"
+      min={0}
+      max={10}
+      valueLabelDisplay="on"
+    />
+    
+    <Typography variant="h6">Problem-Solving</Typography>
+    <Slider
+      value={profileData.softSkills.problemSolving}
+      onChange={handleSliderChange("problemSolving")}
+      aria-labelledby="problem-solving-slider"
+      min={0}
+      max={10}
+      valueLabelDisplay="on"
+    />
+    
+    <Typography variant="h6">Work Ethic</Typography>
+    <Slider
+      value={profileData.softSkills.workEthic}
+      onChange={handleSliderChange("workEthic")}
+      aria-labelledby="work-ethic-slider"
+      min={0}
+      max={10}
+      valueLabelDisplay="on"
+    />
+    
+    <Typography variant="h6">Time Management</Typography>
+    <Slider
+      value={profileData.softSkills.timeManagement}
+      onChange={handleSliderChange("timeManagement")}
+      aria-labelledby="time-management-slider"
+      min={0}
+      max={10}
+      valueLabelDisplay="on"
+    />
+    
+    <Typography variant="h6">Teamwork</Typography>
+    <Slider
+      value={profileData.softSkills.teamwork}
+      onChange={handleSliderChange("teamwork")}
+      aria-labelledby="teamwork-slider"
+      min={0}
+      max={10}
+      valueLabelDisplay="on"
+    />
+  </DialogContent>
+)}
+
+{dialogText === "Add IT Skills" && (
+        <DialogContent>
+          <Typography variant="h6">Add Your IT Skills</Typography>
+          {profileData.ITSkills.map((skillData, index) => (
+            <div key={index}>
+              <TextField
+                label="Skill"
+                value={skillData.skill}
+                onChange={(e) => handleSkillChange(index, 'skill', e.target.value)}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Experience (Months)"
+                type="number"
+                value={skillData.experienceMonths}
+                onChange={(e) => handleSkillChange(index, 'experienceMonths', Number(e.target.value))}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Experience (Years)"
+                type="number"
+                value={skillData.experienceYears}
+                onChange={(e) => handleSkillChange(index, 'experienceYears', Number(e.target.value))}
+                fullWidth
+                margin="normal"
+              />
+              <Button onClick={() => removeSkill(index)} color="error">Remove Skill</Button>
+            </div>
+          ))}
+          <Button onClick={addSkill} variant="outlined">Add More Skill</Button>
+        </DialogContent>
+      )}
+
+
+
+      
         <DialogActions>
           <Button onClick={handleEducationDialogClose}>Cancel</Button>
           <Button onClick={handleSave}>Save</Button>

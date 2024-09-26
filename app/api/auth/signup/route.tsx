@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import User from '@/models/User';
 import bcrypt from 'bcrypt';
 import dbConnect from '@/lib/mongo';
+import ProfileUsers from '@/models/ProfileUsers'; // Import ProfileUsers model
+
 
 export async function POST(req: Request) {
     await dbConnect();
@@ -48,8 +50,31 @@ export async function POST(req: Request) {
       // Save the user to the database
       await newUser.save();
       console.log('User created successfully:', newUser);
+      const newProfile = new ProfileUsers({
+        userId: newUser._id,
+        email: newUser.email,
+        fullname: `${newUser.firstName} ${newUser.lastName}`,
+        country: '',
+        experience: '',
+        joinIn: '',
+        linkedin: '',
+        phone: '',
+        bio: '',
+        education: {
+          class10: { degree: '', institution: '', year: '' },
+          class12: { degree: '', institution: '', year: '' },
+          graduation: { degree: '', institution: '', year: '' },
+          postGraduation: { degree: '', institution: '', year: '' },
+          diploma: { degree: '', institution: '', year: '' },
+        },
+      });
+
+      // Save the profile to the database
+      await newProfile.save();
+      console.log('Profile created successfully:', newProfile);
   
-      return NextResponse.json({ message: 'User created successfully' }, { status: 201 });
+      return NextResponse.json({ message: 'User and profile created successfully' }, { status: 201 });
+  
     } catch (error) {
       console.error('Error during signup process:', error);
       return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
