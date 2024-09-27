@@ -20,6 +20,7 @@ import {
   MenuItem,
   SelectChangeEvent,
   Slider,
+  Skeleton,
 } from "@mui/material";
 import Header from "../common/ui/Header";
 import styles from "./Profile.module.css";
@@ -49,7 +50,7 @@ interface InterestsData {
   fullname: string;
   email: string | undefined;
   userId: string | undefined;
-  gender:string;
+  gender: string;
   country: string;
   experience: string;
   joinIn: string;
@@ -107,12 +108,14 @@ function ProfilePage() {
 
   // State for editing dialog
   const [open, setOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [incomingData, setIncomingData] = useState<any>({});
 
   const [profileData, setProfileData] = useState<InterestsData>({
-    fullname: user?.firstname + " " + user?.lastname,
+    fullname: "",
     email: user?.email,
     userId: user?.id,
-    gender:"",
+    gender: "",
     country: "",
     experience: "Fresher",
     joinIn: "10 days",
@@ -176,15 +179,52 @@ function ProfilePage() {
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
   const [dialogText, setDialogText] = useState("");
+  const [loading, setLoading] = useState(true); // Loading state
+
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  console.log(incomingData, "data");
 
   // Open the dialog
   const handleEducationDialogOpen = (text: string) => {
     setEducationDialogOpen(true);
     setDialogText(text);
   };
+  useEffect(() => {
+    if (incomingData) {
+      setProfileData((prevData) => ({
+        ...prevData,
+        fullname: incomingData.fullname || "",
+        gender: incomingData.gender || "",
+        country: incomingData.country || "",
+        experience: incomingData.experience || prevData.experience,
+        joinIn: incomingData.joinIn || prevData.joinIn,
+        linkedin: incomingData.linkedin || prevData.linkedin,
+        lookingFor: incomingData.lookingFor || prevData.lookingFor,
+        phone: incomingData.phone || prevData.phone,
+        bio: incomingData.bio || prevData.bio,
+        maritalStatus: incomingData.maritalStatus || prevData.maritalStatus,
+        category: incomingData.category || prevData.category,
+        differentlyAbled:
+          incomingData.differentlyAbled || prevData.differentlyAbled,
+        careerBreak: incomingData.careerBreak || prevData.careerBreak,
+        permanentAddress:
+          incomingData.permanentAddress || prevData.permanentAddress,
+        postalOffice: incomingData.postalOffice || prevData.postalOffice,
+        hometown: incomingData.hometown || prevData.hometown,
+        pincode: incomingData.pincode || prevData.pincode,
+        lovesTravelling:
+          incomingData.lovesTravelling || prevData.lovesTravelling,
+        lovesOfficeParties:
+          incomingData.lovesOfficeParties || prevData.lovesOfficeParties,
+        interests: incomingData.interests || prevData.interests,
+        softSkills: incomingData.softSkills || prevData.softSkills,
+        ITSkills: incomingData.ITSkills || prevData.ITSkills,
+        education: incomingData.education || prevData.education,
+      }));
+    }
+  }, [incomingData]);
 
   // Close the dialog
   const handleEducationDialogClose = () => setEducationDialogOpen(false);
@@ -231,18 +271,20 @@ function ProfilePage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | SelectChangeEvent<string>
   ) => {
     const { name, value } = e.target; // Removed 'type'
-  
-    if (name === 'dob') {
+
+    if (name === "dob") {
       const newDate = value ? new Date(value) : null; // Convert string to Date or null
       setProfileData({ ...profileData, [name]: newDate });
     } else {
       setProfileData({ ...profileData, [name]: value });
     }
   };
-  
+
   const handleRadioChange = (
     field: keyof typeof profileData,
     value: string
@@ -280,6 +322,23 @@ function ProfilePage() {
       }
     });
   };
+  const getJobSeekerProfile = async () => {
+    try {
+      const response = await axios.get(`/api/profile/${user?.id}`);
+      setIncomingData(response.data);
+      setLoading(false)
+    } catch (error) {
+      console.error("Error viewing profile:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      getJobSeekerProfile();
+    } else {
+      console.log("Not working");
+    }
+  }, [user?.id]);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -404,7 +463,7 @@ function ProfilePage() {
   };
   const handleSave = async () => {
     const formData = new FormData();
-  
+
     // Append basic information
     formData.append("userId", profileData.userId || "");
     formData.append("fullname", profileData.fullname || "");
@@ -423,74 +482,85 @@ function ProfilePage() {
     formData.append("postalOffice", profileData.postalOffice || "");
     formData.append("hometown", profileData.hometown || "");
     formData.append("pincode", profileData.pincode || "");
-    formData.append("dob", profileData.dob ? profileData.dob.toISOString() : "");
+    formData.append(
+      "dob",
+      profileData.dob ? profileData.dob.toISOString() : ""
+    );
     formData.append("lovesTravelling", profileData.lovesTravelling || "");
     formData.append("lovesOfficeParties", profileData.lovesOfficeParties || "");
-  
+
     // Append soft skills
     Object.entries(profileData.softSkills).forEach(([skill, value]) => {
       formData.append(`softSkills[${skill}]`, value.toString() || "0");
     });
-  
+
     // Append interests
     if (profileData.interests && profileData.interests.length > 0) {
       profileData.interests.forEach((interest, index) => {
         formData.append(`interests[${index}]`, interest);
       });
     }
-  
+
     // Append IT skills
     profileData.ITSkills.forEach((itSkill, index) => {
       formData.append(`ITSkills[${index}][skill]`, itSkill.skill || "");
-      formData.append(`ITSkills[${index}][experienceMonths]`, itSkill.experienceMonths.toString() || "0");
-      formData.append(`ITSkills[${index}][experienceYears]`, itSkill.experienceYears.toString() || "0");
+      formData.append(
+        `ITSkills[${index}][experienceMonths]`,
+        itSkill.experienceMonths.toString() || "0"
+      );
+      formData.append(
+        `ITSkills[${index}][experienceYears]`,
+        itSkill.experienceYears.toString() || "0"
+      );
     });
-  
-     // Explicitly define the union of education keys
-     type EducationLevel =
-     | "class10"
-     | "class12"
-     | "graduation"
-     | "postGraduation"
-     | "diploma";
-   const educationLevels: EducationLevel[] = [
-     "class10",
-     "class12",
-     "graduation",
-     "postGraduation",
-     "diploma",
-   ];
 
-   educationLevels.forEach((level) => {
-     const educationData = profileData.education[level];
-     formData.append(`${level}_degree`, educationData.degree || "");
-     formData.append(`${level}_institution`, educationData.institution || "");
-     formData.append(
-       `${level}_year`,
-       educationData.year ? educationData.year.toString() : ""
-     );
-   });
-  
+    // Explicitly define the union of education keys
+    type EducationLevel =
+      | "class10"
+      | "class12"
+      | "graduation"
+      | "postGraduation"
+      | "diploma";
+    const educationLevels: EducationLevel[] = [
+      "class10",
+      "class12",
+      "graduation",
+      "postGraduation",
+      "diploma",
+    ];
+
+    educationLevels.forEach((level) => {
+      const educationData = profileData.education[level];
+      formData.append(`${level}_degree`, educationData.degree || "");
+      formData.append(`${level}_institution`, educationData.institution || "");
+      formData.append(
+        `${level}_year`,
+        educationData.year ? educationData.year.toString() : ""
+      );
+    });
+
     // Append files (resume, certificates, profilePic)
     if (resume) formData.append("resume", resume);
     if (certificates) {
-      const certArray = Array.isArray(certificates) ? certificates : [certificates];
+      const certArray = Array.isArray(certificates)
+        ? certificates
+        : [certificates];
       certArray.forEach((cert) => formData.append("certificates", cert));
     }
     if (profilePic) formData.append("profilePic", profilePic);
-  
+
     // Send the form data
     try {
       const response = await axios.post("/api/profile/update", formData);
+      getJobSeekerProfile();
       console.log("Profile updated:", response.data);
     } catch (error) {
       console.error("Error updating profile:", error);
     }
-  
+
     handleClose();
     handleEducationDialogClose();
   };
-  
 
   return (
     <>
@@ -523,16 +593,21 @@ function ProfilePage() {
                   if (target) target.style.display = "none";
                 }}
               >
+                {loading ? ( // Conditional rendering based on loading state
+                <Skeleton variant="rectangular" width={150} height={100} />
+              ) : (
                 <Image
                   src={
-                    user?.gender == "female"
+                    incomingData?.profilePic ||
+                    (user?.gender === "female"
                       ? "/images/profile/girl1.png"
-                      : "/images/profile/boy1.png"
+                      : "/images/profile/boy1.png")
                   }
                   alt="profile"
                   width={150}
                   height={100}
-                />
+                />)}
+
                 <Box
                   id="change-profile"
                   sx={{
@@ -564,17 +639,33 @@ function ProfilePage() {
               />
             </CardContent>
             <Box sx={{ flex: 1 }}>
-              <CardContent>
+            <CardContent>
+              {loading ? ( // Skeleton for fullname
+                <Skeleton variant="text" width="40%" />
+              ) : (
                 <Typography variant="h5" component="div">
                   {profileData.fullname}
                   <IconButton onClick={handleOpen} sx={{ ml: 1 }}>
                     <EditIcon />
                   </IconButton>
                 </Typography>
+              )}
+              {loading ? ( // Skeleton for bio
+                <Skeleton variant="text" width="60%" />
+              ) : (
                 <Typography variant="body2" color="text.secondary">
                   {profileData?.bio}
                 </Typography>
-              </CardContent>
+              )}
+            </CardContent>
+            {loading ? (
+              <>
+                <Skeleton variant="text" width="100%" animation="wave" />
+                <Skeleton variant="text" width="100%" animation="wave" />
+                <Skeleton variant="text" width="100%" animation="wave" />
+                </>
+
+              ) : (
               <Box sx={{ display: "flex" }}>
                 {/* First Card Content */}
                 <CardContent>
@@ -644,7 +735,7 @@ function ProfilePage() {
                     </Typography>
                   </Box>
                 </CardContent>
-              </Box>
+              </Box>)}
             </Box>
             <Box>
               <CardContent sx={{ display: "flex", flexDirection: "column" }}>
@@ -674,6 +765,7 @@ function ProfilePage() {
         {/* Bottom Cards Section */}
         <Grid container spacing={2} sx={{ padding: 2 }}>
           {/* Left Side - Single Card */}
+          {loading?<Skeleton variant="rectangular" width={200} height={600} animation="wave" />:(
           <Grid item xs={12} md={3}>
             <Card elevation={3}>
               <CardContent>
@@ -701,6 +793,7 @@ function ProfilePage() {
               </CardContent>
             </Card>
           </Grid>
+          )}
 
           {/* Right Side - Box containing 9 cards */}
           <Grid item xs={12} md={9}>
@@ -708,7 +801,8 @@ function ProfilePage() {
               <Grid container spacing={2}>
                 {sections.map((section, index) => (
                   <Grid item xs={12} key={index}>
-                    {/* Assign ref to each card */}
+                              {loading?<Skeleton variant="rectangular" width="100%" height={150} animation="wave" />:(
+
                     <Card
                       elevation={3}
                       ref={(el: HTMLDivElement | null) => {
@@ -736,6 +830,7 @@ function ProfilePage() {
                         </Typography>
                       </CardContent>
                     </Card>
+                              )}
                   </Grid>
                 ))}
               </Grid>
@@ -785,7 +880,7 @@ function ProfilePage() {
             inputStyle={{ width: "100%" }} // Customize input styles if needed
           />
 
-          <label>COUNTRY:</label>
+          <label>SELECT COUNTRY:</label>
 
           <TextField
             select
@@ -805,29 +900,30 @@ function ProfilePage() {
 
           <label>DATE OF BIRTH:</label>
           <TextField
-  margin="dense"
-  name="dob"
-  type="date"
-  fullWidth
-  value={profileData.dob ? profileData.dob.toISOString().split('T')[0] : ""} // Always a string
-  onChange={handleChange} // Using the modified handleChange function
-  InputLabelProps={{ shrink: true }} // Makes the label stay above the input
-/>
+            margin="dense"
+            name="dob"
+            type="date"
+            fullWidth
+            value={
+              profileData.dob ? profileData.dob.toISOString().split("T")[0] : ""
+            } // Always a string
+            onChange={handleChange} // Using the modified handleChange function
+            InputLabelProps={{ shrink: true }} // Makes the label stay above the input
+          />
 
-    
-    <label>LOOKING FOR:</label>
-    <Select
-      fullWidth
-      name="lookingFor"
-      value={profileData.lookingFor}
-      onChange={handleChange}
-    >
-      <MenuItem value="Remote Jobs">Remote Jobs</MenuItem>
-      <MenuItem value="Work from Office">Work from Office</MenuItem>
-      <MenuItem value="Hybrid Jobs">Hybrid Jobs</MenuItem>
-      <MenuItem value="Others">Others</MenuItem>
-      <MenuItem value="All">All</MenuItem>
-    </Select>
+          <label>LOOKING FOR:</label>
+          <Select
+            fullWidth
+            name="lookingFor"
+            value={profileData.lookingFor}
+            onChange={handleChange}
+          >
+            <MenuItem value="Remote Jobs">Remote Jobs</MenuItem>
+            <MenuItem value="Work from Office">Work from Office</MenuItem>
+            <MenuItem value="Hybrid Jobs">Hybrid Jobs</MenuItem>
+            <MenuItem value="Others">Others</MenuItem>
+            <MenuItem value="All">All</MenuItem>
+          </Select>
           <label>WORK EXPERIENCE</label>
           <RadioGroup
             row

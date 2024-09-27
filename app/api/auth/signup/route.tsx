@@ -54,6 +54,7 @@ export async function POST(req: Request) {
         userId: newUser._id,
         email: newUser.email,
         fullname: `${newUser.firstName} ${newUser.lastName}`,
+        gender:newUser.gender,
         country: '',
         experience: '',
         joinIn: '',

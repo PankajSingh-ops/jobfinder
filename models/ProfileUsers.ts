@@ -20,6 +20,7 @@ interface IProfileUsers extends Document {
   joinIn?: string;
   linkedin?: string;
   phone?: string;
+  gender?:string;
   bio?: string;
   resume?: string; // Handle as needed (Base64 or file path)
   certificates?: ICertificate[]; // Store file paths and names
@@ -54,6 +55,7 @@ const ProfileUsersSchema = new mongoose.Schema<IProfileUsers>({
     ref: 'User',
   },
   email: String,
+  gender:String,
   fullname: String,
   country: String,
   experience: String,
