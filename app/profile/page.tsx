@@ -43,8 +43,56 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import WcIcon from '@mui/icons-material/Wc';
-import GitHub from "@mui/icons-material/GitHub";
+import WcIcon from "@mui/icons-material/Wc";
+interface InterestsData {
+  interests: string[];
+  fullname: string;
+  email: string | undefined;
+  userId: string | undefined;
+  gender:string;
+  country: string;
+  experience: string;
+  joinIn: string;
+  linkedin: string;
+  lookingFor: string;
+  phone: string;
+  lovesTravelling: "";
+  lovesOfficeParties: "";
+  bio: string;
+  dob: Date | null;
+  maritalStatus: string; // Marital status
+  category: string; // Category (General, OBC, etc.)
+  differentlyAbled: string; // Differently Abled status
+  careerBreak: string; // Career break status
+  permanentAddress: string; // Permanent address
+  postalOffice: string;
+  hometown: string;
+  pincode: string;
+  softSkills: {
+    communication: number;
+    leadership: number;
+    problemSolving: number;
+    workEthic: number;
+    timeManagement: number;
+    teamwork: number;
+  };
+  ITSkills: Array<{
+    skill: string;
+    experienceMonths: number;
+    experienceYears: number;
+  }>;
+  education: {
+    class10: { degree: string; institution: string; year: number | null };
+    class12: { degree: string; institution: string; year: number | null };
+    graduation: { degree: string; institution: string; year: number | null };
+    postGraduation: {
+      degree: string;
+      institution: string;
+      year: number | null;
+    };
+    diploma: { degree: string; institution: string; year: number | null };
+  };
+}
 
 type EducationLevel =
   | "class10"
@@ -59,59 +107,84 @@ function ProfilePage() {
 
   // State for editing dialog
   const [open, setOpen] = useState(false);
-  
-  const [profileData, setProfileData] = useState({
+
+  const [profileData, setProfileData] = useState<InterestsData>({
     fullname: user?.firstname + " " + user?.lastname,
     email: user?.email,
-    userId:user?.id,
+    userId: user?.id,
+    gender:"",
     country: "",
     experience: "Fresher",
     joinIn: "10 days",
     linkedin: "",
-    github:"",
+    lookingFor: "",
     phone: "",
     bio: "",
-    dob:null,
+    dob: null,
     maritalStatus: "", // Added for marital status radio options
-  category: "", // Added for category selection (General, OBC, etc.)
-  differentlyAbled: "", // Added for Differently Abled status (Yes/No)
-  careerBreak: "", // Added for Career Break status (Yes/No)
-  permanentAddress: "", // Added for address details
-  postalOffice: "",
-  hometown: "",
-  pincode: "",
-  softSkills: {
-    communication: 0,
-    leadership: 0,
-    problemSolving: 0,
-    workEthic: 0,
-    timeManagement: 0,
-    teamwork: 0,
-  },
-  ITSkills: [
-    { skill: "", experienceMonths: 0, experienceYears: 0 }, // Initialize with one empty skill entry
-  ],
+    category: "", // Added for category selection (General, OBC, etc.)
+    differentlyAbled: "", // Added for Differently Abled status (Yes/No)
+    careerBreak: "", // Added for Career Break status (Yes/No)
+    permanentAddress: "", // Added for address details
+    postalOffice: "",
+    hometown: "",
+    pincode: "",
+    lovesTravelling: "",
+    lovesOfficeParties: "",
+    interests: [],
+    softSkills: {
+      communication: 0,
+      leadership: 0,
+      problemSolving: 0,
+      workEthic: 0,
+      timeManagement: 0,
+      teamwork: 0,
+    },
+    ITSkills: [
+      { skill: "", experienceMonths: 0, experienceYears: 0 }, // Initialize with one empty skill entry
+    ],
     education: {
-      class10: { degree: "10th Class", institution: "", year: null as number | null },
-      class12: { degree: "12th Class", institution: "", year: null as number | null },
-      graduation: { degree: "Graduation", institution: "", year: null as number | null },
-      postGraduation: { degree: "Post-Graduation", institution: "", year: null as number | null },
-      diploma: { degree: "Diploma", institution: "", year: null as number | null },
+      class10: {
+        degree: "10th Class",
+        institution: "",
+        year: null as number | null,
+      },
+      class12: {
+        degree: "12th Class",
+        institution: "",
+        year: null as number | null,
+      },
+      graduation: {
+        degree: "Graduation",
+        institution: "",
+        year: null as number | null,
+      },
+      postGraduation: {
+        degree: "Post-Graduation",
+        institution: "",
+        year: null as number | null,
+      },
+      diploma: {
+        degree: "Diploma",
+        institution: "",
+        year: null as number | null,
+      },
     },
   });
   const [resume, setResume] = useState<string | null>(null);
   const [certificates, setCertificates] = useState<string | null>(null);
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
-  const [dialogText, setDialogText]=useState('')
+  const [dialogText, setDialogText] = useState("");
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   // Open the dialog
-  const handleEducationDialogOpen = (text:string) =>{ setEducationDialogOpen(true);
-    setDialogText(text)
-  }
+  const handleEducationDialogOpen = (text: string) => {
+    setEducationDialogOpen(true);
+    setDialogText(text);
+  };
 
   // Close the dialog
   const handleEducationDialogClose = () => setEducationDialogOpen(false);
@@ -158,84 +231,114 @@ function ProfilePage() {
   };
 
   const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent<string>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
   ) => {
-    const { name, value } = e.target as HTMLInputElement | HTMLTextAreaElement;
-    setProfileData({ ...profileData, [name]: value });
+    const { name, value } = e.target; // Removed 'type'
+  
+    if (name === 'dob') {
+      const newDate = value ? new Date(value) : null; // Convert string to Date or null
+      setProfileData({ ...profileData, [name]: newDate });
+    } else {
+      setProfileData({ ...profileData, [name]: value });
+    }
   };
-  const handleRadioChange = (field: keyof typeof profileData, value: string) => {
+  
+  const handleRadioChange = (
+    field: keyof typeof profileData,
+    value: string
+  ) => {
     setProfileData((prevData) => ({
       ...prevData,
       [field]: value,
     }));
   };
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof typeof profileData) => {
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: keyof typeof profileData
+  ) => {
     setProfileData((prevData) => ({
       ...prevData,
       [field]: e.target.value,
     }));
   };
-  
-  
+  const handleCheckboxChange = (interest: string) => {
+    setProfileData((prevData) => {
+      const currentValues = prevData.interests;
+
+      // Check if interest is already in the array
+      if (currentValues.includes(interest)) {
+        return {
+          ...prevData,
+          interests: currentValues.filter((item) => item !== interest), // Remove it
+        };
+      } else {
+        return {
+          ...prevData,
+          interests: [...currentValues, interest], // Add it
+        };
+      }
+    });
+  };
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
-) => {
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
-        // Convert the file to Base64 and store it
-        convertToBase64(file).then((base64) => {
-          if (typeof base64 === 'string') { // Check if base64 is a string
+      // Convert the file to Base64 and store it
+      convertToBase64(file).then((base64) => {
+        if (typeof base64 === "string") {
+          // Check if base64 is a string
 
-            if (type === "resume") {
-                setResume(base64); // Store Base64 string for resume
-            } else {
-                setCertificates(base64); // Store Base64 string for certificates
-            }
+          if (type === "resume") {
+            setResume(base64); // Store Base64 string for resume
+          } else {
+            setCertificates(base64); // Store Base64 string for certificates
           }
-        });
+        }
+      });
     }
-};
+  };
 
-const handleSliderChange = (field: string) => (event: Event, value: number | number[]) => {
-  // If you're only using a single slider, you can assume `value` will be a number.
-  const newValue = Array.isArray(value) ? value[0] : value;
+  const handleSliderChange =
+    (field: string) => (event: Event, value: number | number[]) => {
+      // If you're only using a single slider, you can assume `value` will be a number.
+      const newValue = Array.isArray(value) ? value[0] : value;
 
-  setProfileData((prevData) => ({
-    ...prevData,
-    softSkills: {
-      ...prevData.softSkills,
-      [field]: newValue,
-    },
-  }));
-};
+      setProfileData((prevData) => ({
+        ...prevData,
+        softSkills: {
+          ...prevData.softSkills,
+          [field]: newValue,
+        },
+      }));
+    };
 
-
-
-const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
       // Convert the profile picture to Base64 and store it
       convertToBase64(file).then((base64) => {
-          if (typeof base64 === 'string') { // Ensure base64 is a string
-              setProfilePic(base64); // Store Base64 string for profile picture
-          }
+        if (typeof base64 === "string") {
+          // Ensure base64 is a string
+          setProfilePic(base64); // Store Base64 string for profile picture
+        }
       });
-  }
-};
+    }
+  };
 
-  const convertToBase64 = (file: File): Promise<string | ArrayBuffer | null> => {
+  const convertToBase64 = (
+    file: File
+  ): Promise<string | ArrayBuffer | null> => {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result); // Return Base64 string
-        reader.onerror = (error) => reject(error); // Handle error
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result); // Return Base64 string
+      reader.onerror = (error) => reject(error); // Handle error
     });
-};
+  };
   const handlePhoneChange = (value: string) => {
     setProfileData({ ...profileData, phone: value });
   };
@@ -246,7 +349,6 @@ const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     "Add IT Skills",
     "Add Interests",
     "Add Projects",
-    "Add Accomplishments",
     "Add Certifications",
     "Add Languages",
   ];
@@ -256,16 +358,17 @@ const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     cardRefs.current[index]?.scrollIntoView({ behavior: "smooth" });
   };
 
-
-
   const addSkill = () => {
     setProfileData((prevData) => ({
       ...prevData,
-      ITSkills: [...prevData.ITSkills, { skill: "", experienceMonths: 0, experienceYears: 0 }],
+      ITSkills: [
+        ...prevData.ITSkills,
+        { skill: "", experienceMonths: 0, experienceYears: 0 },
+      ],
     }));
   };
 
-  const removeSkill = (index:number) => {
+  const removeSkill = (index: number) => {
     setProfileData((prevData) => {
       const updatedSkills = [...prevData.ITSkills];
       updatedSkills.splice(index, 1); // Remove skill at specified index
@@ -276,38 +379,34 @@ const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     });
   };
 
-  type SkillField = 'skill' | 'experienceMonths' | 'experienceYears';
+  type SkillField = "skill" | "experienceMonths" | "experienceYears";
 
-const handleSkillChange = (
+  const handleSkillChange = (
     index: number,
     field: SkillField, // Use a union type for field
     value: string | number // Value can be either string or number
-) => {
+  ) => {
     setProfileData((prevData) => {
-        const updatedSkills = [...prevData.ITSkills];
+      const updatedSkills = [...prevData.ITSkills];
 
-        // Update the corresponding field based on the field name
-        if (field === 'experienceMonths' || field === 'experienceYears') {
-            updatedSkills[index][field] = Number(value); // Convert to number for experience fields
-        } else {
-            updatedSkills[index][field] = value as string; // Otherwise treat as string
-        }
+      // Update the corresponding field based on the field name
+      if (field === "experienceMonths" || field === "experienceYears") {
+        updatedSkills[index][field] = Number(value); // Convert to number for experience fields
+      } else {
+        updatedSkills[index][field] = value as string; // Otherwise treat as string
+      }
 
-        return {
-            ...prevData,
-            ITSkills: updatedSkills,
-        };
+      return {
+        ...prevData,
+        ITSkills: updatedSkills,
+      };
     });
-};
+  };
   const handleSave = async () => {
     const formData = new FormData();
   
     // Append basic information
-    if (profileData.email) {
-      formData.append("email", profileData.email);
-    } else {
-      console.error("Email is undefined.");
-    }
+    formData.append("userId", profileData.userId || "");
     formData.append("fullname", profileData.fullname || "");
     formData.append("email", profileData.email || "example@gmail.com");
     formData.append("country", profileData.country || "");
@@ -316,45 +415,68 @@ const handleSkillChange = (
     formData.append("linkedin", profileData.linkedin || "");
     formData.append("phone", profileData.phone || "");
     formData.append("bio", profileData.bio || "");
-    formData.append("github",profileData.github);
-    formData.append("userId", profileData.userId || "");
     formData.append("maritalStatus", profileData.maritalStatus || "");
-  formData.append("category", profileData.category || "");
-  formData.append("differentlyAbled", profileData.differentlyAbled || "");
-  formData.append("careerBreak", profileData.careerBreak || "");
-  formData.append("permanentAddress", profileData.permanentAddress || "");
-  formData.append("postalOffice", profileData.postalOffice || "");
-  formData.append("hometown", profileData.hometown || "");
-  formData.append("pincode", profileData.pincode || "");
-  Object.entries(profileData.softSkills).forEach(([skill, value]) => {
-    formData.append(`softSkills[${skill}]`, value.toString() || "0");
-  });
+    formData.append("category", profileData.category || "");
+    formData.append("differentlyAbled", profileData.differentlyAbled || "");
+    formData.append("careerBreak", profileData.careerBreak || "");
+    formData.append("permanentAddress", profileData.permanentAddress || "");
+    formData.append("postalOffice", profileData.postalOffice || "");
+    formData.append("hometown", profileData.hometown || "");
+    formData.append("pincode", profileData.pincode || "");
+    formData.append("dob", profileData.dob ? profileData.dob.toISOString() : "");
+    formData.append("lovesTravelling", profileData.lovesTravelling || "");
+    formData.append("lovesOfficeParties", profileData.lovesOfficeParties || "");
   
-  // Append IT skills
-  profileData.ITSkills.forEach((itSkill, index) => {
-    formData.append(`ITSkills[${index}][skill]`, itSkill.skill || "");
-    formData.append(`ITSkills[${index}][experienceMonths]`, itSkill.experienceMonths.toString() || "0");
-    formData.append(`ITSkills[${index}][experienceYears]`, itSkill.experienceYears.toString() || "0");
-  });
-
-  
-    // Explicitly define the union of education keys
-    type EducationLevel = "class10" | "class12" | "graduation" | "postGraduation" | "diploma";
-    const educationLevels: EducationLevel[] = ["class10", "class12", "graduation", "postGraduation", "diploma"];
-  
-    educationLevels.forEach((level) => {
-      const educationData = profileData.education[level];
-      formData.append(`${level}_degree`, educationData.degree || "");
-      formData.append(`${level}_institution`, educationData.institution || "");
-      formData.append(
-        `${level}_year`,
-        educationData.year ? educationData.year.toString() : ""
-      );
+    // Append soft skills
+    Object.entries(profileData.softSkills).forEach(([skill, value]) => {
+      formData.append(`softSkills[${skill}]`, value.toString() || "0");
     });
+  
+    // Append interests
+    if (profileData.interests && profileData.interests.length > 0) {
+      profileData.interests.forEach((interest, index) => {
+        formData.append(`interests[${index}]`, interest);
+      });
+    }
+  
+    // Append IT skills
+    profileData.ITSkills.forEach((itSkill, index) => {
+      formData.append(`ITSkills[${index}][skill]`, itSkill.skill || "");
+      formData.append(`ITSkills[${index}][experienceMonths]`, itSkill.experienceMonths.toString() || "0");
+      formData.append(`ITSkills[${index}][experienceYears]`, itSkill.experienceYears.toString() || "0");
+    });
+  
+     // Explicitly define the union of education keys
+     type EducationLevel =
+     | "class10"
+     | "class12"
+     | "graduation"
+     | "postGraduation"
+     | "diploma";
+   const educationLevels: EducationLevel[] = [
+     "class10",
+     "class12",
+     "graduation",
+     "postGraduation",
+     "diploma",
+   ];
+
+   educationLevels.forEach((level) => {
+     const educationData = profileData.education[level];
+     formData.append(`${level}_degree`, educationData.degree || "");
+     formData.append(`${level}_institution`, educationData.institution || "");
+     formData.append(
+       `${level}_year`,
+       educationData.year ? educationData.year.toString() : ""
+     );
+   });
   
     // Append files (resume, certificates, profilePic)
     if (resume) formData.append("resume", resume);
-    if (certificates) formData.append("certificates", certificates);
+    if (certificates) {
+      const certArray = Array.isArray(certificates) ? certificates : [certificates];
+      certArray.forEach((cert) => formData.append("certificates", cert));
+    }
     if (profilePic) formData.append("profilePic", profilePic);
   
     // Send the form data
@@ -366,8 +488,8 @@ const handleSkillChange = (
     }
   
     handleClose();
+    handleEducationDialogClose();
   };
-  
   
 
   return (
@@ -493,7 +615,7 @@ const handleSkillChange = (
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <WcIcon sx={{ mr: 1 }} />
                     <Typography variant="body2">
-                      Gender: {profileData.email}
+                      Gender: {profileData.gender}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -501,11 +623,14 @@ const handleSkillChange = (
                 <CardContent>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <CalendarTodayIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      DOB: {profileData.dob}
+                    <Typography variant="body1">
+                      DOB:{" "}
+                      {profileData?.dob
+                        ? profileData.dob.toLocaleDateString()
+                        : "Not provided"}
                     </Typography>
                   </Box>
-                 
+
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                     <LinkedInIcon sx={{ mr: 1 }} />
                     <Typography variant="body2">
@@ -513,9 +638,9 @@ const handleSkillChange = (
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <GitHub sx={{ mr: 1 }} />
+                    <WorkIcon sx={{ mr: 1 }} />
                     <Typography variant="body2">
-                      GitHub: {profileData.github}
+                      Looking for: {profileData.lookingFor}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -603,7 +728,7 @@ const handleSkillChange = (
                           {section}{" "}
                           <EditIcon
                             sx={{ cursor: "pointer" }}
-                            onClick={()=>handleEducationDialogOpen(section)}
+                            onClick={() => handleEducationDialogOpen(section)}
                           />
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
@@ -677,6 +802,32 @@ const handleSkillChange = (
               </MenuItem>
             ))}
           </TextField>
+
+          <label>DATE OF BIRTH:</label>
+          <TextField
+  margin="dense"
+  name="dob"
+  type="date"
+  fullWidth
+  value={profileData.dob ? profileData.dob.toISOString().split('T')[0] : ""} // Always a string
+  onChange={handleChange} // Using the modified handleChange function
+  InputLabelProps={{ shrink: true }} // Makes the label stay above the input
+/>
+
+    
+    <label>LOOKING FOR:</label>
+    <Select
+      fullWidth
+      name="lookingFor"
+      value={profileData.lookingFor}
+      onChange={handleChange}
+    >
+      <MenuItem value="Remote Jobs">Remote Jobs</MenuItem>
+      <MenuItem value="Work from Office">Work from Office</MenuItem>
+      <MenuItem value="Hybrid Jobs">Hybrid Jobs</MenuItem>
+      <MenuItem value="Others">Others</MenuItem>
+      <MenuItem value="All">All</MenuItem>
+    </Select>
           <label>WORK EXPERIENCE</label>
           <RadioGroup
             row
@@ -730,344 +881,453 @@ const handleSkillChange = (
       {/* Edit Education Dialog */}
       <Dialog open={educationDialogOpen} onClose={handleEducationDialogClose}>
         <DialogTitle>{dialogText}</DialogTitle>
-        {dialogText==="Add Education"&&
-        <DialogContent>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            {/* 10th Class */}
-            <Typography variant="h6">10th Class</Typography>
-            <TextField
-              margin="dense"
-              name="institution"
-              label="Institution"
-              fullWidth
-              value={profileData.education.class10.institution}
-              onChange={(
-                e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-              ) => handleEducationChange(e, "class10")}
-            />
-
-            <DatePicker
-              label="Year of Completion"
-              views={["year"]}
-              value={
-                profileData.education.class10.year
-                  ? dayjs(profileData.education.class10.year)
-                  : null
-              }
-              onChange={(date: dayjs.Dayjs | null) =>
-                handleDateChange(date, "class10")
-              }
-              slotProps={{
-                textField: { margin: "dense", fullWidth: true },
-              }}
-            />
-
-            {/* 12th Class */}
-            <Typography variant="h6">12th Class</Typography>
-            <TextField
-              margin="dense"
-              name="institution"
-              label="Institution"
-              fullWidth
-              value={profileData.education.class12.institution}
-              onChange={(e) => handleEducationChange(e, "class12")}
-            />
-            <DatePicker
-              label="Year of Completion"
-              views={["year"]}
-              value={
-                profileData.education.class12.year
-                  ? dayjs(profileData.education.class12.year)
-                  : null
-              }
-              onChange={(date) => handleDateChange(date, "class12")}
-              slotProps={{
-                textField: { margin: "dense", fullWidth: true },
-              }}
-            />
-
-            {/* Graduation */}
-            <Typography variant="h6">Graduation</Typography>
-            <TextField
-              margin="dense"
-              name="institution"
-              label="Institution"
-              fullWidth
-              value={profileData.education.graduation.institution}
-              onChange={(e) => handleEducationChange(e, "graduation")}
-            />
-            <DatePicker
-              label="Year of Completion"
-              views={["year"]}
-              value={
-                profileData.education.graduation.year
-                  ? dayjs(profileData.education.graduation.year)
-                  : null
-              }
-              onChange={(date) => handleDateChange(date, "graduation")}
-              slotProps={{
-                textField: { margin: "dense", fullWidth: true },
-              }}
-            />
-
-            {/* Post-Graduation */}
-            <Typography variant="h6">Post-Graduation</Typography>
-            <TextField
-              margin="dense"
-              name="institution"
-              label="Institution"
-              fullWidth
-              value={profileData.education.postGraduation.institution}
-              onChange={(e) => handleEducationChange(e, "postGraduation")}
-            />
-            <DatePicker
-              label="Year of Completion"
-              views={["year"]}
-              value={
-                profileData.education.postGraduation.year
-                  ? dayjs(profileData.education.postGraduation.year)
-                  : null
-              }
-              onChange={(date) => handleDateChange(date, "postGraduation")}
-              slotProps={{
-                textField: { margin: "dense", fullWidth: true },
-              }}
-            />
-
-            {/* Diploma */}
-            <Typography variant="h6">Diploma</Typography>
-            <TextField
-              margin="dense"
-              name="institution"
-              label="Institution"
-              fullWidth
-              value={profileData.education.diploma.institution}
-              onChange={(e) => handleEducationChange(e, "diploma")}
-            />
-            <DatePicker
-              label="Year of Completion"
-              views={["year"]}
-              value={
-                profileData.education.diploma.year
-                  ? dayjs(profileData.education.diploma.year)
-                  : null
-              }
-              onChange={(date) => handleDateChange(date, "diploma")}
-              slotProps={{
-                textField: { margin: "dense", fullWidth: true },
-              }}
-            />
-          </LocalizationProvider>
-        </DialogContent>
-}
-{dialogText === "Add Personal Details" && (
-        <DialogContent>
-          {/* Marital Status */}
-          <Typography variant="h6">Marital Status</Typography>
-          <div className={styles["custom-radio-group"]}>
-            {["Single", "Married", "Widowed", "Divorced", "Other"].map((status) => (
-              <div
-                key={status}
-                className={`${styles["custom-radio"]} ${
-                  profileData.maritalStatus === status ? styles["selected"] : ""
-                }`}
-                onClick={() => handleRadioChange("maritalStatus", status)}
-              >
-                {status}
-              </div>
-            ))}
-          </div>
-
-          {/* Category */}
-          <Typography variant="h6">Category</Typography>
-          <div className={styles["custom-radio-group"]}>
-            {["General", "Scheduled Caste", "Scheduled Tribe", "OBC", "Others"].map((category) => (
-              <div
-                key={category}
-                className={`${styles["custom-radio"]} ${
-                  profileData.category === category ? styles["selected"] : ""
-                }`}
-                onClick={() => handleRadioChange("category", category)}
-              >
-                {category}
-              </div>
-            ))}
-          </div>
-
-          {/* Differently Abled */}
-          <Typography variant="h6">Are you differently abled?</Typography>
-          <div className={styles["custom-radio-group"]}>
-            {["Yes", "No"].map((abled) => (
-              <div
-                key={abled}
-                className={`${styles["custom-radio"]} ${
-                  profileData.differentlyAbled === abled ? styles["selected"] : ""
-                }`}
-                onClick={() => handleRadioChange("differentlyAbled", abled)}
-              >
-                {abled}
-              </div>
-            ))}
-          </div>
-
-          {/* Career Break */}
-          <Typography variant="h6">Have you taken a career break?</Typography>
-          <div className={styles["custom-radio-group"]}>
-            {["Yes", "No"].map((careerBreak) => (
-              <div
-                key={careerBreak}
-                className={`${styles["custom-radio"]} ${
-                  profileData.careerBreak === careerBreak ? styles["selected"] : ""
-                }`}
-                onClick={() => handleRadioChange("careerBreak", careerBreak)}
-              >
-                {careerBreak}
-              </div>
-            ))}
-          </div>
-
-          {/* Address Section */}
-          <Typography variant="h6">Permanent Address</Typography>
-          <TextField
-            margin="dense"
-            name="permanentAddress"
-            label="Permanent Address"
-            fullWidth
-            value={profileData.permanentAddress}
-            onChange={(e) => handleInputChange(e, "permanentAddress")}
-          />
-
-          <TextField
-            margin="dense"
-            name="postalOffice"
-            label="Postal Office"
-            fullWidth
-            value={profileData.postalOffice}
-            onChange={(e) => handleInputChange(e, "postalOffice")}
-          />
-
-          <TextField
-            margin="dense"
-            name="hometown"
-            label="Hometown"
-            fullWidth
-            value={profileData.hometown}
-            onChange={(e) => handleInputChange(e, "hometown")}
-          />
-
-          <TextField
-            margin="dense"
-            name="pincode"
-            label="Pincode"
-            fullWidth
-            value={profileData.pincode}
-            onChange={(e) => handleInputChange(e, "pincode")}
-          />
-        </DialogContent>
-      )}
-      
-      {dialogText === "Add Soft Skills" && (
-  <DialogContent>
-    <Typography variant="h6">Good Communication and Interpersonal Skills</Typography>
-    <Slider
-      value={profileData.softSkills.communication}
-      onChange={handleSliderChange("communication")}
-      aria-labelledby="communication-slider"
-      min={0}
-      max={10}
-      valueLabelDisplay="on"
-    />
-    
-    <Typography variant="h6">Leadership</Typography>
-    <Slider
-      value={profileData.softSkills.leadership}
-      onChange={handleSliderChange("leadership")}
-      aria-labelledby="leadership-slider"
-      min={0}
-      max={10}
-      valueLabelDisplay="on"
-    />
-    
-    <Typography variant="h6">Problem-Solving</Typography>
-    <Slider
-      value={profileData.softSkills.problemSolving}
-      onChange={handleSliderChange("problemSolving")}
-      aria-labelledby="problem-solving-slider"
-      min={0}
-      max={10}
-      valueLabelDisplay="on"
-    />
-    
-    <Typography variant="h6">Work Ethic</Typography>
-    <Slider
-      value={profileData.softSkills.workEthic}
-      onChange={handleSliderChange("workEthic")}
-      aria-labelledby="work-ethic-slider"
-      min={0}
-      max={10}
-      valueLabelDisplay="on"
-    />
-    
-    <Typography variant="h6">Time Management</Typography>
-    <Slider
-      value={profileData.softSkills.timeManagement}
-      onChange={handleSliderChange("timeManagement")}
-      aria-labelledby="time-management-slider"
-      min={0}
-      max={10}
-      valueLabelDisplay="on"
-    />
-    
-    <Typography variant="h6">Teamwork</Typography>
-    <Slider
-      value={profileData.softSkills.teamwork}
-      onChange={handleSliderChange("teamwork")}
-      aria-labelledby="teamwork-slider"
-      min={0}
-      max={10}
-      valueLabelDisplay="on"
-    />
-  </DialogContent>
-)}
-
-{dialogText === "Add IT Skills" && (
-        <DialogContent>
-          <Typography variant="h6">Add Your IT Skills</Typography>
-          {profileData.ITSkills.map((skillData, index) => (
-            <div key={index}>
+        {dialogText === "Add Education" && (
+          <DialogContent>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              {/* 10th Class */}
+              <Typography variant="h6">10th Class</Typography>
               <TextField
-                label="Skill"
-                value={skillData.skill}
-                onChange={(e) => handleSkillChange(index, 'skill', e.target.value)}
+                margin="dense"
+                name="institution"
+                label="Institution"
                 fullWidth
-                margin="normal"
+                value={profileData.education.class10.institution}
+                onChange={(
+                  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+                ) => handleEducationChange(e, "class10")}
               />
+
+              <DatePicker
+                label="Year of Completion"
+                views={["year"]}
+                value={
+                  profileData.education.class10.year
+                    ? dayjs(profileData.education.class10.year)
+                    : null
+                }
+                onChange={(date: dayjs.Dayjs | null) =>
+                  handleDateChange(date, "class10")
+                }
+                slotProps={{
+                  textField: { margin: "dense", fullWidth: true },
+                }}
+              />
+
+              {/* 12th Class */}
+              <Typography variant="h6">12th Class</Typography>
               <TextField
-                label="Experience (Months)"
-                type="number"
-                value={skillData.experienceMonths}
-                onChange={(e) => handleSkillChange(index, 'experienceMonths', Number(e.target.value))}
+                margin="dense"
+                name="institution"
+                label="Institution"
                 fullWidth
-                margin="normal"
+                value={profileData.education.class12.institution}
+                onChange={(e) => handleEducationChange(e, "class12")}
               />
+              <DatePicker
+                label="Year of Completion"
+                views={["year"]}
+                value={
+                  profileData.education.class12.year
+                    ? dayjs(profileData.education.class12.year)
+                    : null
+                }
+                onChange={(date) => handleDateChange(date, "class12")}
+                slotProps={{
+                  textField: { margin: "dense", fullWidth: true },
+                }}
+              />
+
+              {/* Graduation */}
+              <Typography variant="h6">Graduation</Typography>
               <TextField
-                label="Experience (Years)"
-                type="number"
-                value={skillData.experienceYears}
-                onChange={(e) => handleSkillChange(index, 'experienceYears', Number(e.target.value))}
+                margin="dense"
+                name="institution"
+                label="Institution"
                 fullWidth
-                margin="normal"
+                value={profileData.education.graduation.institution}
+                onChange={(e) => handleEducationChange(e, "graduation")}
               />
-              <Button onClick={() => removeSkill(index)} color="error">Remove Skill</Button>
+              <DatePicker
+                label="Year of Completion"
+                views={["year"]}
+                value={
+                  profileData.education.graduation.year
+                    ? dayjs(profileData.education.graduation.year)
+                    : null
+                }
+                onChange={(date) => handleDateChange(date, "graduation")}
+                slotProps={{
+                  textField: { margin: "dense", fullWidth: true },
+                }}
+              />
+
+              {/* Post-Graduation */}
+              <Typography variant="h6">Post-Graduation</Typography>
+              <TextField
+                margin="dense"
+                name="institution"
+                label="Institution"
+                fullWidth
+                value={profileData.education.postGraduation.institution}
+                onChange={(e) => handleEducationChange(e, "postGraduation")}
+              />
+              <DatePicker
+                label="Year of Completion"
+                views={["year"]}
+                value={
+                  profileData.education.postGraduation.year
+                    ? dayjs(profileData.education.postGraduation.year)
+                    : null
+                }
+                onChange={(date) => handleDateChange(date, "postGraduation")}
+                slotProps={{
+                  textField: { margin: "dense", fullWidth: true },
+                }}
+              />
+
+              {/* Diploma */}
+              <Typography variant="h6">Diploma</Typography>
+              <TextField
+                margin="dense"
+                name="institution"
+                label="Institution"
+                fullWidth
+                value={profileData.education.diploma.institution}
+                onChange={(e) => handleEducationChange(e, "diploma")}
+              />
+              <DatePicker
+                label="Year of Completion"
+                views={["year"]}
+                value={
+                  profileData.education.diploma.year
+                    ? dayjs(profileData.education.diploma.year)
+                    : null
+                }
+                onChange={(date) => handleDateChange(date, "diploma")}
+                slotProps={{
+                  textField: { margin: "dense", fullWidth: true },
+                }}
+              />
+            </LocalizationProvider>
+          </DialogContent>
+        )}
+        {dialogText === "Add Personal Details" && (
+          <DialogContent>
+            {/* Marital Status */}
+            <Typography variant="h6">Marital Status</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {["Single", "Married", "Widowed", "Divorced", "Other"].map(
+                (status) => (
+                  <div
+                    key={status}
+                    className={`${styles["custom-radio"]} ${
+                      profileData.maritalStatus === status
+                        ? styles["selected"]
+                        : ""
+                    }`}
+                    onClick={() => handleRadioChange("maritalStatus", status)}
+                  >
+                    {status}
+                  </div>
+                )
+              )}
             </div>
-          ))}
-          <Button onClick={addSkill} variant="outlined">Add More Skill</Button>
-        </DialogContent>
-      )}
 
+            {/* Category */}
+            <Typography variant="h6">Category</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {[
+                "General",
+                "Scheduled Caste",
+                "Scheduled Tribe",
+                "OBC",
+                "Others",
+              ].map((category) => (
+                <div
+                  key={category}
+                  className={`${styles["custom-radio"]} ${
+                    profileData.category === category ? styles["selected"] : ""
+                  }`}
+                  onClick={() => handleRadioChange("category", category)}
+                >
+                  {category}
+                </div>
+              ))}
+            </div>
 
+            {/* Differently Abled */}
+            <Typography variant="h6">Are you differently abled?</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {["Yes", "No"].map((abled) => (
+                <div
+                  key={abled}
+                  className={`${styles["custom-radio"]} ${
+                    profileData.differentlyAbled === abled
+                      ? styles["selected"]
+                      : ""
+                  }`}
+                  onClick={() => handleRadioChange("differentlyAbled", abled)}
+                >
+                  {abled}
+                </div>
+              ))}
+            </div>
 
-      
+            {/* Career Break */}
+            <Typography variant="h6">Have you taken a career break?</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {["Yes", "No"].map((careerBreak) => (
+                <div
+                  key={careerBreak}
+                  className={`${styles["custom-radio"]} ${
+                    profileData.careerBreak === careerBreak
+                      ? styles["selected"]
+                      : ""
+                  }`}
+                  onClick={() => handleRadioChange("careerBreak", careerBreak)}
+                >
+                  {careerBreak}
+                </div>
+              ))}
+            </div>
+
+            {/* Address Section */}
+            <Typography variant="h6">Permanent Address</Typography>
+            <TextField
+              margin="dense"
+              name="permanentAddress"
+              label="Permanent Address"
+              fullWidth
+              value={profileData.permanentAddress}
+              onChange={(e) => handleInputChange(e, "permanentAddress")}
+            />
+
+            <TextField
+              margin="dense"
+              name="postalOffice"
+              label="Postal Office"
+              fullWidth
+              value={profileData.postalOffice}
+              onChange={(e) => handleInputChange(e, "postalOffice")}
+            />
+
+            <TextField
+              margin="dense"
+              name="hometown"
+              label="Hometown"
+              fullWidth
+              value={profileData.hometown}
+              onChange={(e) => handleInputChange(e, "hometown")}
+            />
+
+            <TextField
+              margin="dense"
+              name="pincode"
+              label="Pincode"
+              fullWidth
+              value={profileData.pincode}
+              onChange={(e) => handleInputChange(e, "pincode")}
+            />
+          </DialogContent>
+        )}
+
+        {dialogText === "Add Soft Skills" && (
+          <DialogContent>
+            <Typography variant="h6">
+              Good Communication and Interpersonal Skills
+            </Typography>
+            <Slider
+              value={profileData.softSkills.communication}
+              onChange={handleSliderChange("communication")}
+              aria-labelledby="communication-slider"
+              min={0}
+              max={10}
+              valueLabelDisplay="on"
+            />
+
+            <Typography variant="h6">Leadership</Typography>
+            <Slider
+              value={profileData.softSkills.leadership}
+              onChange={handleSliderChange("leadership")}
+              aria-labelledby="leadership-slider"
+              min={0}
+              max={10}
+              valueLabelDisplay="on"
+            />
+
+            <Typography variant="h6">Problem-Solving</Typography>
+            <Slider
+              value={profileData.softSkills.problemSolving}
+              onChange={handleSliderChange("problemSolving")}
+              aria-labelledby="problem-solving-slider"
+              min={0}
+              max={10}
+              valueLabelDisplay="on"
+            />
+
+            <Typography variant="h6">Work Ethic</Typography>
+            <Slider
+              value={profileData.softSkills.workEthic}
+              onChange={handleSliderChange("workEthic")}
+              aria-labelledby="work-ethic-slider"
+              min={0}
+              max={10}
+              valueLabelDisplay="on"
+            />
+
+            <Typography variant="h6">Time Management</Typography>
+            <Slider
+              value={profileData.softSkills.timeManagement}
+              onChange={handleSliderChange("timeManagement")}
+              aria-labelledby="time-management-slider"
+              min={0}
+              max={10}
+              valueLabelDisplay="on"
+            />
+
+            <Typography variant="h6">Teamwork</Typography>
+            <Slider
+              value={profileData.softSkills.teamwork}
+              onChange={handleSliderChange("teamwork")}
+              aria-labelledby="teamwork-slider"
+              min={0}
+              max={10}
+              valueLabelDisplay="on"
+            />
+          </DialogContent>
+        )}
+
+        {dialogText === "Add IT Skills" && (
+          <DialogContent>
+            <Typography variant="h6">Add Your IT Skills</Typography>
+            {profileData.ITSkills.map((skillData, index) => (
+              <div key={index}>
+                <TextField
+                  label="Skill"
+                  value={skillData.skill}
+                  onChange={(e) =>
+                    handleSkillChange(index, "skill", e.target.value)
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Experience (Months)"
+                  type="number"
+                  value={skillData.experienceMonths}
+                  onChange={(e) =>
+                    handleSkillChange(
+                      index,
+                      "experienceMonths",
+                      Number(e.target.value)
+                    )
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Experience (Years)"
+                  type="number"
+                  value={skillData.experienceYears}
+                  onChange={(e) =>
+                    handleSkillChange(
+                      index,
+                      "experienceYears",
+                      Number(e.target.value)
+                    )
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <Button onClick={() => removeSkill(index)} color="error">
+                  Remove Skill
+                </Button>
+              </div>
+            ))}
+            <Button onClick={addSkill} variant="outlined">
+              Add More Skill
+            </Button>
+          </DialogContent>
+        )}
+        {dialogText === "Add Interests" && (
+          <DialogContent>
+            <Typography variant="h6">Select Interests</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {[
+                "Volunteering",
+                "Travel",
+                "Languages",
+                "Photography",
+                "Art",
+                "Video games",
+                "Sports",
+                "Music",
+                "Reading/Writing",
+                "Dance",
+                "Painting",
+                "Woodworking",
+                "Cooking",
+                "Drawing",
+                "Fitness",
+                "Instruments",
+                "Yoga",
+                "Blogging",
+                "Other",
+              ].map((interest) => (
+                <div
+                  key={interest}
+                  className={`${styles["custom-radio"]} ${
+                    profileData.interests?.includes(interest)
+                      ? styles["selected"]
+                      : ""
+                  }`}
+                  onClick={() => handleCheckboxChange(interest)}
+                >
+                  {interest}
+                </div>
+              ))}
+            </div>
+
+            {/* Do you love traveling? */}
+            <Typography variant="h6">Do you love traveling?</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {["Yes", "No"].map((option) => (
+                <div
+                  key={option}
+                  className={`${styles["custom-radio"]} ${
+                    profileData?.lovesTravelling === option
+                      ? styles["selected"]
+                      : ""
+                  }`}
+                  onClick={() => handleRadioChange("lovesTravelling", option)}
+                >
+                  {option}
+                </div>
+              ))}
+            </div>
+
+            {/* Do you love office parties? */}
+            <Typography variant="h6">Do you love office parties?</Typography>
+            <div className={styles["custom-radio-group"]}>
+              {["Yes", "No"].map((option) => (
+                <div
+                  key={option}
+                  className={`${styles["custom-radio"]} ${
+                    profileData.lovesOfficeParties === option
+                      ? styles["selected"]
+                      : ""
+                  }`}
+                  onClick={() =>
+                    handleRadioChange("lovesOfficeParties", option)
+                  }
+                >
+                  {option}
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        )}
+
         <DialogActions>
           <Button onClick={handleEducationDialogClose}>Cancel</Button>
           <Button onClick={handleSave}>Save</Button>

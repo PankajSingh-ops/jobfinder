@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const connection: { isConnected?: number } = {};
-console.log(process.env.MONGODB_URI,"Mongo url");
 
 
 async function dbConnect() {

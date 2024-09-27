@@ -32,6 +32,9 @@ interface IProfileUsers extends Document {
   postalOffice?: string; // New field
   hometown?: string; // New field
   pincode?: string; // New field
+  dob?: Date; // New field for date of birth
+  lovesTravelling?: string; // New field for travelling interest
+  lovesOfficeParties?: string; // New field for office party interest
   softSkills?: { [key: string]: number }; // Updated type
   ITSkills?: { skill: string; experienceMonths: number; experienceYears: number }[]; // Updated type
   education?: {
@@ -41,6 +44,7 @@ interface IProfileUsers extends Document {
     postGraduation?: IEducation;
     diploma?: IEducation;
   };
+  interests?: string[]; // New field for interests
 }
 
 const ProfileUsersSchema = new mongoose.Schema<IProfileUsers>({
@@ -73,6 +77,9 @@ const ProfileUsersSchema = new mongoose.Schema<IProfileUsers>({
   postalOffice: String, // New field
   hometown: String, // New field
   pincode: String, // New field
+  dob: Date, // New field for date of birth
+  lovesTravelling: String,
+  lovesOfficeParties: String,
   softSkills: {
     type: Map,
     of: Number, // Store soft skills as a map with skill names and values
@@ -111,6 +118,7 @@ const ProfileUsersSchema = new mongoose.Schema<IProfileUsers>({
       year: String,
     },
   },
+  interests: [{ type: String }], // New field for interests
 }, { timestamps: true });
 
 const ProfileUsers: Model<IProfileUsers> = mongoose.models.ProfileUsers || mongoose.model<IProfileUsers>('ProfileUsers', ProfileUsersSchema);
