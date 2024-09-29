@@ -381,7 +381,7 @@ function ProfilePage() {
         }
       });
     }
-      handleSave();  
+      handleSave() ;  
   };
 
   const convertToBase64 = (
