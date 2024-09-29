@@ -381,10 +381,7 @@ function ProfilePage() {
         }
       });
     }
-    if (profileData && profilePic && profilePic?.length > 0) {
-      handleSave();
-    }
-    
+      handleSave();  
   };
 
   const convertToBase64 = (
