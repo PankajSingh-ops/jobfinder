@@ -45,6 +45,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import WcIcon from "@mui/icons-material/Wc";
+import Cookies from "js-cookie";
+
 interface InterestsData {
   interests: string[];
   fullname: string;
@@ -181,16 +183,15 @@ function ProfilePage() {
   const [dialogText, setDialogText] = useState("");
   const [loading, setLoading] = useState(true); // Loading state
 
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  console.log(incomingData, "data");
 
   // Open the dialog
   const handleEducationDialogOpen = (text: string) => {
     setEducationDialogOpen(true);
     setDialogText(text);
   };
+  const token = Cookies.get("token");
   useEffect(() => {
     if (incomingData) {
       setProfileData((prevData) => ({
@@ -229,7 +230,6 @@ function ProfilePage() {
   // Close the dialog
   const handleEducationDialogClose = () => setEducationDialogOpen(false);
   useEffect(() => {
-    // Fetch countries using the country-state-city library
     const countryList = Country.getAllCountries();
     setCountries(countryList);
   }, []);
@@ -251,7 +251,6 @@ function ProfilePage() {
     }));
   };
 
-  // Handle the date change for the DatePicker
   const handleDateChange = (
     date: dayjs.Dayjs | null,
     educationLevel: EducationLevel
@@ -275,7 +274,7 @@ function ProfilePage() {
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
       | SelectChangeEvent<string>
   ) => {
-    const { name, value } = e.target; // Removed 'type'
+    const { name, value } = e.target;
 
     if (name === "dob") {
       const newDate = value ? new Date(value) : null; // Convert string to Date or null
@@ -307,26 +306,28 @@ function ProfilePage() {
   const handleCheckboxChange = (interest: string) => {
     setProfileData((prevData) => {
       const currentValues = prevData.interests;
-
-      // Check if interest is already in the array
       if (currentValues.includes(interest)) {
         return {
           ...prevData,
-          interests: currentValues.filter((item) => item !== interest), // Remove it
+          interests: currentValues.filter((item) => item !== interest),
         };
       } else {
         return {
           ...prevData,
-          interests: [...currentValues, interest], // Add it
+          interests: [...currentValues, interest],
         };
       }
     });
   };
   const getJobSeekerProfile = async () => {
     try {
-      const response = await axios.get(`/api/profile/${user?.id}`);
+      const response = await axios.get("/api/profile/job-seeker", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setIncomingData(response.data);
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
       console.error("Error viewing profile:", error);
     }
@@ -349,12 +350,10 @@ function ProfilePage() {
       // Convert the file to Base64 and store it
       convertToBase64(file).then((base64) => {
         if (typeof base64 === "string") {
-          // Check if base64 is a string
-
           if (type === "resume") {
-            setResume(base64); // Store Base64 string for resume
+            setResume(base64);
           } else {
-            setCertificates(base64); // Store Base64 string for certificates
+            setCertificates(base64);
           }
         }
       });
@@ -363,9 +362,7 @@ function ProfilePage() {
 
   const handleSliderChange =
     (field: string) => (event: Event, value: number | number[]) => {
-      // If you're only using a single slider, you can assume `value` will be a number.
       const newValue = Array.isArray(value) ? value[0] : value;
-
       setProfileData((prevData) => ({
         ...prevData,
         softSkills: {
@@ -378,14 +375,16 @@ function ProfilePage() {
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Convert the profile picture to Base64 and store it
       convertToBase64(file).then((base64) => {
         if (typeof base64 === "string") {
-          // Ensure base64 is a string
-          setProfilePic(base64); // Store Base64 string for profile picture
+          setProfilePic(base64);
         }
       });
     }
+    if (profileData && profilePic && profilePic?.length > 0) {
+      handleSave();
+    }
+    
   };
 
   const convertToBase64 = (
@@ -462,9 +461,9 @@ function ProfilePage() {
     });
   };
   const handleSave = async () => {
+    setLoading(true)
     const formData = new FormData();
 
-    // Append basic information
     formData.append("userId", profileData.userId || "");
     formData.append("fullname", profileData.fullname || "");
     formData.append("email", profileData.email || "example@gmail.com");
@@ -552,6 +551,7 @@ function ProfilePage() {
     // Send the form data
     try {
       const response = await axios.post("/api/profile/update", formData);
+      setLoading(false)
       getJobSeekerProfile();
       console.log("Profile updated:", response.data);
     } catch (error) {
@@ -594,19 +594,20 @@ function ProfilePage() {
                 }}
               >
                 {loading ? ( // Conditional rendering based on loading state
-                <Skeleton variant="rectangular" width={150} height={100} />
-              ) : (
-                <Image
-                  src={
-                    incomingData?.profilePic ||
-                    (user?.gender === "female"
-                      ? "/images/profile/girl1.png"
-                      : "/images/profile/boy1.png")
-                  }
-                  alt="profile"
-                  width={150}
-                  height={100}
-                />)}
+                  <Skeleton variant="rectangular" width={150} height={100} />
+                ) : (
+                  <Image
+                    src={
+                      incomingData?.profilePic ||
+                      (user?.gender === "female"
+                        ? "/images/profile/girl1.png"
+                        : "/images/profile/boy1.png")
+                    }
+                    alt="profile"
+                    width={150}
+                    height={100}
+                  />
+                )}
 
                 <Box
                   id="change-profile"
@@ -639,103 +640,103 @@ function ProfilePage() {
               />
             </CardContent>
             <Box sx={{ flex: 1 }}>
-            <CardContent>
-              {loading ? ( // Skeleton for fullname
-                <Skeleton variant="text" width="40%" />
-              ) : (
-                <Typography variant="h5" component="div">
-                  {profileData.fullname}
-                  <IconButton onClick={handleOpen} sx={{ ml: 1 }}>
-                    <EditIcon />
-                  </IconButton>
-                </Typography>
-              )}
-              {loading ? ( // Skeleton for bio
-                <Skeleton variant="text" width="60%" />
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  {profileData?.bio}
-                </Typography>
-              )}
-            </CardContent>
-            {loading ? (
-              <>
-                <Skeleton variant="text" width="100%" animation="wave" />
-                <Skeleton variant="text" width="100%" animation="wave" />
-                <Skeleton variant="text" width="100%" animation="wave" />
+              <CardContent>
+                {loading ? ( // Skeleton for fullname
+                  <Skeleton variant="text" width="40%" />
+                ) : (
+                  <Typography variant="h5" component="div">
+                    {profileData.fullname}
+                    <IconButton onClick={handleOpen} sx={{ ml: 1 }}>
+                      <EditIcon />
+                    </IconButton>
+                  </Typography>
+                )}
+                {loading ? ( // Skeleton for bio
+                  <Skeleton variant="text" width="60%" />
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    {profileData?.bio}
+                  </Typography>
+                )}
+              </CardContent>
+              {loading ? (
+                <>
+                  <Skeleton variant="text" width="100%" animation="wave" />
+                  <Skeleton variant="text" width="100%" animation="wave" />
+                  <Skeleton variant="text" width="100%" animation="wave" />
                 </>
-
               ) : (
-              <Box sx={{ display: "flex" }}>
-                {/* First Card Content */}
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <LocationOnIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      Country: {profileData.country}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <WorkIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      Experience: {profileData.experience}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <CalendarTodayIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      When to join: {profileData.joinIn}
-                    </Typography>
-                  </Box>
-                </CardContent>
+                <Box sx={{ display: "flex" }}>
+                  {/* First Card Content */}
+                  <CardContent>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <LocationOnIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        Country: {profileData.country}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <WorkIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        Experience: {profileData.experience}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <CalendarTodayIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        When to join: {profileData.joinIn}
+                      </Typography>
+                    </Box>
+                  </CardContent>
 
-                {/* Second Card Content */}
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <PhoneIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      Phone: {profileData.phone}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <EmailIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      Email: {profileData.email}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <WcIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      Gender: {profileData.gender}
-                    </Typography>
-                  </Box>
-                </CardContent>
+                  {/* Second Card Content */}
+                  <CardContent>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <PhoneIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        Phone: {profileData.phone}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <EmailIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        Email: {profileData.email}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <WcIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        Gender: {profileData.gender}
+                      </Typography>
+                    </Box>
+                  </CardContent>
 
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <CalendarTodayIcon sx={{ mr: 1 }} />
-                    <Typography variant="body1">
-                      DOB:{" "}
-                      {profileData?.dob
-                        ? profileData.dob.toLocaleDateString()
-                        : "Not provided"}
-                    </Typography>
-                  </Box>
+                  <CardContent>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <CalendarTodayIcon sx={{ mr: 1 }} />
+                      <Typography variant="body1">
+                        DOB:{" "}
+                        {profileData?.dob
+                          ? profileData.dob.toLocaleDateString()
+                          : "Not provided"}
+                      </Typography>
+                    </Box>
 
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <LinkedInIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      LinkedIn: {profileData.linkedin}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <WorkIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">
-                      Looking for: {profileData.lookingFor}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Box>)}
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <LinkedInIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        LinkedIn: {profileData.linkedin}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <WorkIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        Looking for: {profileData.lookingFor}
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Box>
+              )}
             </Box>
             <Box>
               <CardContent sx={{ display: "flex", flexDirection: "column" }}>
@@ -765,34 +766,43 @@ function ProfilePage() {
         {/* Bottom Cards Section */}
         <Grid container spacing={2} sx={{ padding: 2 }}>
           {/* Left Side - Single Card */}
-          {loading?<Skeleton variant="rectangular" width={200} height={600} animation="wave" />:(
-          <Grid item xs={12} md={3}>
-            <Card elevation={3}>
-              <CardContent>
-                {sections.map((section, index) => (
-                  <div key={index}>
-                    <Typography
-                      variant="h6"
-                      component="div"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        cursor: "pointer",
-                        "&:hover": { color: "primary.main" },
-                      }}
-                      onClick={() => handleScrollToCard(index)}
-                    >
-                      {section} <AddCircleOutlineIcon />
-                    </Typography>
-                    {index < sections.length - 1 && (
-                      <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} />
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </Grid>
+          {loading ? (
+            <Skeleton
+              variant="rectangular"
+              width={200}
+              height={600}
+              animation="wave"
+            />
+          ) : (
+            <Grid item xs={12} md={3}>
+              <Card elevation={3}>
+                <CardContent>
+                  {sections.map((section, index) => (
+                    <div key={index}>
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          cursor: "pointer",
+                          "&:hover": { color: "primary.main" },
+                        }}
+                        onClick={() => handleScrollToCard(index)}
+                      >
+                        {section} <AddCircleOutlineIcon />
+                      </Typography>
+                      {index < sections.length - 1 && (
+                        <hr
+                          style={{ marginTop: "1rem", marginBottom: "1rem" }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
           )}
 
           {/* Right Side - Box containing 9 cards */}
@@ -801,36 +811,42 @@ function ProfilePage() {
               <Grid container spacing={2}>
                 {sections.map((section, index) => (
                   <Grid item xs={12} key={index}>
-                              {loading?<Skeleton variant="rectangular" width="100%" height={150} animation="wave" />:(
-
-                    <Card
-                      elevation={3}
-                      ref={(el: HTMLDivElement | null) => {
-                        cardRefs.current[index] = el;
-                      }}
-                    >
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          component="div"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          {section}{" "}
-                          <EditIcon
-                            sx={{ cursor: "pointer" }}
-                            onClick={() => handleEducationDialogOpen(section)}
-                          />
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Content for {section}.
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                              )}
+                    {loading ? (
+                      <Skeleton
+                        variant="rectangular"
+                        width="100%"
+                        height={150}
+                        animation="wave"
+                      />
+                    ) : (
+                      <Card
+                        elevation={3}
+                        ref={(el: HTMLDivElement | null) => {
+                          cardRefs.current[index] = el;
+                        }}
+                      >
+                        <CardContent>
+                          <Typography
+                            variant="h6"
+                            component="div"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            {section}{" "}
+                            <EditIcon
+                              sx={{ cursor: "pointer" }}
+                              onClick={() => handleEducationDialogOpen(section)}
+                            />
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Content for {section}.
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    )}
                   </Grid>
                 ))}
               </Grid>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import User from '@/models/User';
 import bcrypt from 'bcrypt';
 import dbConnect from '@/lib/mongo';
+import jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 export async function POST(req: Request) {
     await dbConnect();
@@ -38,12 +39,23 @@ export async function POST(req: Request) {
             firstname: user.firstName,
             lastname: user.lastName,
             userType: user.userType,
-            gender:user.gender,
+            gender: user.gender,
             companyname: user.companyName,
         };
 
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user._id, email: user.email,userType:user.userType },
+            process.env.JWT_SECRET!,
+            { expiresIn: '24h' }
+        );
+
         console.log('Login successful for user:', email);
-        return NextResponse.json({ message: 'Login successful', user: userData }, { status: 200 });
+
+        return NextResponse.json(
+            { message: 'Login successful', user: userData, token }, 
+            { status: 200 }
+        );
 
     } catch (error) {
         console.error('Error during login process:', error);

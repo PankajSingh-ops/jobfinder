@@ -13,11 +13,13 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  token: string | null;  // Add token to state
   isLogin: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
+  token: null,  // Initialize token as null
   isLogin: false,
 };
 
@@ -26,27 +28,34 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      state.user = action.payload;
+      const { user, token } = action.payload;
+      state.user = user;
+      state.token = token;
       state.isLogin = true;
-      Cookies.set('user', JSON.stringify(action.payload), { expires: 7 });
-      Cookies.set('isLogin', 'true', { expires: 7 });
+      Cookies.set('user', JSON.stringify(user), { expires: 1 });
+      Cookies.set('token', token, { expires: 1 });
+      Cookies.set('isLogin', 'true', { expires: 1 });
     },
     logout: (state) => {
       state.user = null;
+      state.token = null;  // Clear token on logout
       state.isLogin = false;
       Cookies.remove('user');
+      Cookies.remove('token');  // Remove token from cookies
       Cookies.remove('isLogin');
     },
     loadFromCookies: (state) => {
       const user = Cookies.get('user');
+      const token = Cookies.get('token');  // Load token from cookies
       const isLogin = Cookies.get('isLogin');
-      if (user && isLogin === 'true') {
+      if (user && token && isLogin === 'true') {
         state.user = JSON.parse(user);
+        state.token = token;
         state.isLogin = true;
       }
     },
   },
 });
 
-export const { login, logout, loadFromCookies } = authSlice.actions; // Make sure this line is present
+export const { login, logout, loadFromCookies } = authSlice.actions;
 export default authSlice.reducer;

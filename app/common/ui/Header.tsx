@@ -9,12 +9,15 @@ import { useDispatch } from "react-redux";
 import { logout } from "@/store/slices/authSlice";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { NextWeek, ViewList } from "@mui/icons-material";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false); // Track dropdown state
   const router = useRouter();
   const { isLogin, user } = useSelector((state: RootState) => state.auth);
+  const { fullname} = useSelector((state: RootState) => state.profile);
+
   const dispatch = useDispatch();
 
   const toggleMenu = () => {
@@ -51,6 +54,7 @@ export default function Header() {
 
       <nav className={`${styles.nav} ${menuOpen ? styles.open : ""}`}>
         <ul>
+
           {!isLogin ? (
             <>
               <li>
@@ -63,6 +67,8 @@ export default function Header() {
           ) : (
             <>
             <ul className={styles.comapniesandjobUl}>
+              <li><span>
+                {fullname}</span></li>
               <li>
                 <span className={styles.spanLink}>Companies</span>
               </li>
@@ -89,6 +95,18 @@ export default function Header() {
                       <AccountCircleIcon className={styles.icon} />
                       <span className={styles.spanLink1}>Profile</span>
                     </li>
+                    {isLogin&&user?.userType=="employer"&&
+                    <>
+                    <li onClick={()=>router.push("/employer/add-jobs")}>
+                      <NextWeek className={styles.icon} />
+                      <span className={styles.spanLink1}>Add Job</span>
+                    </li>
+                    <li onClick={()=>router.push("/profile/employer")}>
+                      <ViewList className={styles.icon} />
+                      <span className={styles.spanLink1}>View Job</span>
+                    </li>
+                    </>
+}
                     <li onClick={handleLogout}>
                       <LogoutIcon className={styles.icon} />
                       <span className={styles.spanLink1}>Signout</span>

@@ -31,7 +31,7 @@ export default function Login() {
     try {
       const response = await axios.post('/api/auth/login', values);
       console.log('Login successful:', response.data);
-      dispatch(login(response.data.user));
+      dispatch(login({ user: response.data.user, token: response.data.token }));
       router.push('/profile')
 
     } catch (error) {

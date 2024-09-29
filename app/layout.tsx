@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import StoreProvider from "./storeProvider";
 import "./globals.css";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,7 +29,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`} style={{ margin:"0", padding:"0" }}>
       <StoreProvider>
+      <EdgeStoreProvider>
         {children}
+        </EdgeStoreProvider>
         </StoreProvider>
       </body>
     </html>

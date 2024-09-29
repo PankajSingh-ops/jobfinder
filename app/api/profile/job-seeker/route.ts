@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server';
-import ProfileUsers from '@/models/ProfileUsers'; // Adjust the path according to your folder structure
+import { NextRequest, NextResponse } from 'next/server';
+import ProfileUsers from '@/models/ProfileUsers';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongo';
+import { authenticate } from '@/lib/jwtverify';
 
-// Route handler for GET /api/profile/:userId
-export async function GET(req: Request, { params }: { params: { userData: string } }) {
+export async function GET(req: NextRequest) {
+  const authResult = await authenticate(req);
+  if (authResult) return authResult;
+
   try {
     await dbConnect();
-
-    const { userData } = params;
-    console.log(userData);
-    const userId=userData;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userId = (req as any).user.id;
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json({ message: 'Invalid user ID' }, { status: 400 });
     }
-
     const profile = await ProfileUsers.findOne({ userId });
 
     if (!profile) {
