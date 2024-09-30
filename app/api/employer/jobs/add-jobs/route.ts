@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       industryType,
       education,
       workingDays,
+      employmentType,
       jobProfileUrl,
     } = body;
     if (!jobTitle || !experience || !salaryFrom || !salaryTo || !jobType || !location || !openings || !joiningTime ||!itSkills || !role || !industryType || !education || !workingDays) {
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       education,
       workingDays,
       jobProfileUrl,
+      employmentType,
       profileId: userId,
       usersId: [],
     });

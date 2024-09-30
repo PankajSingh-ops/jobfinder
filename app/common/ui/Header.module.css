@@ -34,8 +34,8 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 10px;
-    z-index: 1000;
-    width: 150px; /* Fixed width for dropdown */
+    z-index: 10000;
+    width: 180px; /* Fixed width for dropdown */
 }
 
 .dropdown ul {

@@ -1,24 +1,27 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMediaQuery } from "@mui/material"; // Import useMediaQuery
 import styles from "./Header.module.css";
 import { useRouter } from "next/navigation";
-import { RootState } from "@/store";
+import { AppDispatch, RootState } from "@/store";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/slices/authSlice";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { NextWeek, ViewList } from "@mui/icons-material";
+import { fetchProfileData } from "@/store/slices/profileSlice";
+import MobileHeader from "./MobileHeader"; // Import the MobileHeader component
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // Track dropdown state
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 600px)"); // Use media query to detect mobile view
   const router = useRouter();
   const { isLogin, user } = useSelector((state: RootState) => state.auth);
-  const { fullname} = useSelector((state: RootState) => state.profile);
-
-  const dispatch = useDispatch();
+  const { fullname } = useSelector((state: RootState) => state.profile);
+  const dispatch: AppDispatch = useDispatch();
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -29,15 +32,33 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch logout action
-    router.push("/"); // Redirect to homepage or another route
+    dispatch(logout());
+    router.push("/");
   };
 
   const getProfileImage = () => {
     if (user?.gender === "male") return "/images/profile/boy5.png";
     if (user?.gender === "female") return "/images/profile/girl1.png";
-    return "/images/profile/other.png"; // Default image for other gender
+    return "/images/profile/other.png";
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const profileData = await dispatch(fetchProfileData()).unwrap();
+        console.log(profileData);
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
+
+  // If on mobile, render the MobileHeader component
+  if (isMobile) {
+    return <MobileHeader />;
+  }
 
   return (
     <header className={styles.header}>
@@ -48,13 +69,12 @@ export default function Header() {
           width={100}
           height={50}
           onClick={() => router.push("/")}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         />
       </div>
 
       <nav className={`${styles.nav} ${menuOpen ? styles.open : ""}`}>
         <ul>
-
           {!isLogin ? (
             <>
               <li>
@@ -66,17 +86,15 @@ export default function Header() {
             </>
           ) : (
             <>
-            <ul className={styles.comapniesandjobUl}>
-              <li><span>
-                {fullname}</span></li>
-              <li>
-                <span className={styles.spanLink}>Companies</span>
-              </li>
-              <li>
-                <span className={styles.spanLink}>Jobs</span>
-              </li>
-            </ul>
-              {/* Show profile image and dropdown only if not in mobile menu */}
+              <ul className={styles.comapniesandjobUl}>
+                <li><span>{fullname}</span></li>
+                <li>
+                  <span className={styles.spanLink}>Companies</span>
+                </li>
+                <li>
+                  <span className={styles.spanLink}>Jobs</span>
+                </li>
+              </ul>
               {!menuOpen && (
                 <div className={styles.profileContainer} onClick={toggleDropdown}>
                   <Image
@@ -84,29 +102,33 @@ export default function Header() {
                     alt="Profile Image"
                     width={60}
                     height={60}
-                    className={styles.profileImage} // Round-shaped profile image styling
+                    className={styles.profileImage}
                   />
                 </div>
               )}
               {dropdownOpen && (
                 <div className={styles.dropdown}>
                   <ul>
-                    <li onClick={()=>router.push('/profile')}>
+                    <li onClick={() => router.push("/profile")}>
                       <AccountCircleIcon className={styles.icon} />
                       <span className={styles.spanLink1}>Profile</span>
                     </li>
-                    {isLogin&&user?.userType=="employer"&&
-                    <>
-                    <li onClick={()=>router.push("/employer/add-jobs")}>
-                      <NextWeek className={styles.icon} />
-                      <span className={styles.spanLink1}>Add Job</span>
-                    </li>
-                    <li onClick={()=>router.push("/profile/employer")}>
-                      <ViewList className={styles.icon} />
-                      <span className={styles.spanLink1}>View Job</span>
-                    </li>
-                    </>
-}
+                    {isLogin && user?.userType === "employer" && (
+                      <>
+                        <li onClick={() => router.push("/company/add-company")}>
+                          <NextWeek className={styles.icon} />
+                          <span className={styles.spanLink1}>My Company</span>
+                        </li>
+                        <li onClick={() => router.push("/employer/add-jobs")}>
+                          <NextWeek className={styles.icon} />
+                          <span className={styles.spanLink1}>Add Job</span>
+                        </li>
+                        <li onClick={() => router.push("/employer/view-jobs")}>
+                          <ViewList className={styles.icon} />
+                          <span className={styles.spanLink1}>View Job</span>
+                        </li>
+                      </>
+                    )}
                     <li onClick={handleLogout}>
                       <LogoutIcon className={styles.icon} />
                       <span className={styles.spanLink1}>Signout</span>

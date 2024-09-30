@@ -18,6 +18,7 @@ interface IJobPost extends Document {
   education: string;
   workingDays: string;
   jobProfileUrl: string;
+  employmentType:string;
   profileId: mongoose.Schema.Types.ObjectId; // Reference to ProfileUsers
   usersId: mongoose.Schema.Types.ObjectId[]; // Array of user IDs, referencing ProfileUsers
 }
@@ -34,11 +35,12 @@ const JobPostSchema: Schema = new Schema({
   openings: { type: String, required: true },
   joiningTime: { type: String, required: true },
   requirements: { type: String },
-  itSkills: { type: String, required: true },
+  itSkills: { type: String },
   role: { type: String, required: true },
   industryType: { type: String, required: true },
   education: { type: String, required: true },
   workingDays: { type: String, required: true },
+  employmentType: {type: String},
   jobProfileUrl: { type: String },
   profileId: {
     type: mongoose.Schema.Types.ObjectId,

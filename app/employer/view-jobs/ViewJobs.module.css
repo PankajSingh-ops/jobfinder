@@ -1,0 +1,53 @@
+.jobsContainer {
+    padding: 20px;
+  }
+  
+  .jobCard {
+    position: relative;
+    transition: box-shadow 0.3s;
+  }
+  
+  .jobCard:hover {
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .cardImageContainer {
+    position: relative;
+  }
+  
+  .jobImage {
+    object-fit: cover;
+  }
+  
+  .iconContainer {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+  }
+  
+  .editButton, .deleteButton {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    padding: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .editButton:hover, .deleteButton:hover {
+    background-color: rgba(255, 255, 255, 1);
+  }
+  .cardmain{
+    max-width: 25% !important;
+  }
+  @media (max-width:800px){
+    .cardmain{
+        max-width: 33% !important;
+      }
+  }
+  @media (max-width:550px){
+    .cardmain{
+        max-width: 50% !important;
+      }
+  }
+  
