@@ -25,25 +25,26 @@ export default function ViewJobs() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
 
-  const getJobs = async () => {
-    try {
-      const response = await axios.get('/api/employer/jobs/view-jobs', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
   
-      if (response?.data) {
-        setJobs(response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching jobs:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
   
   useEffect(() => {
+    const getJobs = async () => {
+      try {
+        const response = await axios.get('/api/employer/jobs/view-jobs', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    
+        if (response?.data) {
+          setJobs(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
     getJobs();
   }, [token]);
   
@@ -62,7 +63,6 @@ export default function ViewJobs() {
               Authorization: `Bearer ${token}`,
             },
           });
-        getJobs()
       setDeleteDialogOpen(false);
       console.log(response);
       
