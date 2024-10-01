@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   TextField,
   MenuItem,
@@ -32,9 +32,16 @@ import {
 } from "./Jobdata";
 import "react-quill/dist/quill.snow.css";
 
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+interface Company {
+  _id: string;
+  companyName: string;
+  subCompanyName?: string;
+ 
+}
 const JobPosting = () => {
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -55,16 +62,18 @@ const JobPosting = () => {
     workingDays: "",
     jobProfileUrl: "",
     employmentType: "",
+    companyId: "",
   });
 
   const [file, setFile] = useState<File>();
   const [loading, setLoading] = useState(false); // Loading state
+  const [companiesList, setCompaniesList] = useState<Company[]>([]);
   const router = useRouter();
 
   const { edgestore } = useEdgeStore();
-  let token=null;
+  let token = null;
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     token = Cookies.get("token");
   }
   const handleChange = (
@@ -92,15 +101,27 @@ const JobPosting = () => {
         },
       });
       console.log(res);
-  
+
       setFormData((prevData) => ({
         ...prevData,
         jobProfileUrl: res.url,
       }));
-  
+
       return res.url;
     }
   };
+  useEffect(() => {
+    const getCompanies = async () => {
+      const response = await axios.post("/api/company/view-company",{}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCompaniesList(response?.data);
+      console.log(response.data, "companies");
+    };
+    getCompanies();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +169,7 @@ const JobPosting = () => {
         workingDays: "",
         jobProfileUrl: "",
         employmentType: "",
+        companyId: "",
       });
 
       setFile(undefined); // Clear the file upload
@@ -261,6 +283,25 @@ const JobPosting = () => {
                     {employmentTypes.map((type) => (
                       <MenuItem key={type} value={type}>
                         {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Company</InputLabel>
+                  <Select
+                    value={formData.companyId}
+                    onChange={(e) => handleSelectChange(e, "companyId")}
+                    label="Company"
+                  >
+                    {companiesList.map((company:Company) => (
+                      <MenuItem key={company._id} value={company._id}>
+                        {company.companyName}{" "}
+                        {company.subCompanyName
+                          ? `- ${company.subCompanyName}`
+                          : ""}
                       </MenuItem>
                     ))}
                   </Select>

@@ -88,10 +88,10 @@ export default function Header() {
             <>
               <ul className={styles.comapniesandjobUl}>
                 <li><span>{fullname}</span></li>
-                <li>
+                <li onClick={()=>router.push('/company')}>
                   <span className={styles.spanLink}>Companies</span>
                 </li>
-                <li>
+                <li onClick={()=>router.push('/jobs')}>
                   <span className={styles.spanLink}>Jobs</span>
                 </li>
               </ul>

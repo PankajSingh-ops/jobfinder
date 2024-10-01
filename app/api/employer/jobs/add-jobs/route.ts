@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       workingDays,
       employmentType,
       jobProfileUrl,
+      companyId
     } = body;
     if (!jobTitle || !experience || !salaryFrom || !salaryTo || !jobType || !location || !openings || !joiningTime ||!itSkills || !role || !industryType || !education || !workingDays) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
       jobProfileUrl,
       employmentType,
       profileId: userId,
+      companyId,
       usersId: [],
     });
     return NextResponse.json(newJobPost, { status: 201 });
