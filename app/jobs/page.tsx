@@ -24,6 +24,7 @@ import {
 } from "../employer/add-jobs/Jobdata";
 import { useMediaQuery } from "@mui/material";
 import styles from "./JobCard.module.css";
+import { Circles } from "react-loader-spinner";
 
 interface IJobPost {
   _id: string;
@@ -62,6 +63,7 @@ export default function JobsPage() {
     experience: "",
   });
   const [jobs, setJobs] = useState<IJobPost[]>([]);
+  const [loading, setLoading]=useState(true)
   const [showFilters, setShowFilters] = useState(false); // State for toggling filters
   const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screen
 
@@ -71,6 +73,8 @@ export default function JobsPage() {
       setJobs(response?.data?.jobs);
     } catch (error) {
       console.error("Error fetching jobs:", error);
+    }finally{
+        setLoading(false)
     }
   };
 
@@ -260,6 +264,17 @@ export default function JobsPage() {
         </Collapse>
 
         {/* Job List */}
+        {loading ? (
+          <div className={styles.loader}>
+            <Circles
+              height="80"
+              width="80"
+              color="#4fa94d"
+              ariaLabel="circles-loading"
+              visible={true}
+            />
+          </div>
+        ) : (
         <Box mt={4} display="flex" flexWrap="wrap" gap={4} justifyContent="center">
           {jobs.length > 0 ? (
             jobs.map((job) => (
@@ -289,6 +304,7 @@ export default function JobsPage() {
             <p>No jobs found</p>
           )}
         </Box>
+        )}
       </Box>
     </>
   );

@@ -20,7 +20,6 @@ export default function Header() {
   const isMobile = useMediaQuery("(max-width: 600px)"); // Use media query to detect mobile view
   const router = useRouter();
   const { isLogin, user } = useSelector((state: RootState) => state.auth);
-  const { fullname } = useSelector((state: RootState) => state.profile);
   const dispatch: AppDispatch = useDispatch();
 
   const toggleMenu = () => {
@@ -87,7 +86,6 @@ export default function Header() {
           ) : (
             <>
               <ul className={styles.comapniesandjobUl}>
-                <li><span>{fullname}</span></li>
                 <li onClick={()=>router.push('/company')}>
                   <span className={styles.spanLink}>Companies</span>
                 </li>

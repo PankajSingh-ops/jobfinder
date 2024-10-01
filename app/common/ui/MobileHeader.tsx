@@ -55,6 +55,12 @@ export default function MobileHeader() {
             ) : (
               <>
                 <li onClick={() => router.push("/profile")}>Profile</li>
+                <li onClick={()=>router.push('/company')}>
+                  <span className={styles.spanLink}>Companies</span>
+                </li>
+                <li onClick={()=>router.push('/jobs')}>
+                  <span className={styles.spanLink}>Jobs</span>
+                </li>
                 {user?.userType === "employer" && (
                   <>
                     <li onClick={() => router.push("/company/add-company")}>My Company</li>
