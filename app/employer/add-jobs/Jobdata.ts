@@ -1,3 +1,4 @@
+"use client"
 export const jobTypes = ['Remote', 'Hybrid', 'Office', 'Other'];
 export const genderPreferences = ['Male', 'Female', 'Any'];
 export const workingDaysOptions = ['5 Days', '6 Days', 'Other'];

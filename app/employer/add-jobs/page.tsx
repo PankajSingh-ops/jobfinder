@@ -30,9 +30,11 @@ import {
   industryType,
   employmentTypes,
 } from "./Jobdata";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
+import dynamic from 'next/dynamic';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 const JobPosting = () => {
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -60,8 +62,11 @@ const JobPosting = () => {
   const router = useRouter();
 
   const { edgestore } = useEdgeStore();
-  const token = Cookies.get("token");
+  let token=null;
 
+  if (typeof window !== 'undefined') {
+    token = Cookies.get("token");
+  }
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {

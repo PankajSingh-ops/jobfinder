@@ -11,13 +11,15 @@ import {
 } from "@mui/material";
 import { Country, State, City } from "country-state-city";
 import { Save, LinkedIn, Twitter, Facebook } from "@mui/icons-material";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import Header from "@/app/common/ui/Header";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import Cookies from "js-cookie";
+import dynamic from 'next/dynamic';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 
 export interface ICompany {
@@ -79,8 +81,13 @@ const Home: React.FC = () => {
   const countries = Country.getAllCountries();
   const states = selectedCountry ? State.getStatesOfCountry(selectedCountry) : [];
   const cities = selectedState ? City.getCitiesOfState(selectedCountry, selectedState) : [];
-  const token = Cookies.get("token");
+  let token=null;
 
+  if (typeof window !== 'undefined') {
+    token = Cookies.get("token");
+  }
+  console.log(token,"token");
+  
 
   const handleSave = async () => {
     const companyData = {
