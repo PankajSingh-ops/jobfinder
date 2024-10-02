@@ -25,6 +25,16 @@ import {
 import { useMediaQuery } from "@mui/material";
 import styles from "./JobCard.module.css";
 import { Circles } from "react-loader-spinner";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useDispatch } from "react-redux";
+import { fetchProfileData } from "@/store/slices/profileSlice";
+
+
+
 
 interface IJobPost {
   _id: string;
@@ -66,6 +76,31 @@ export default function JobsPage() {
   const [loading, setLoading]=useState(true)
   const [showFilters, setShowFilters] = useState(false); // State for toggling filters
   const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screen
+  const token = Cookies.get("token");
+  const dispatch=useDispatch()
+  const { likedJobs } = useSelector((state: RootState) => state.profile);
+
+
+
+  const toggleLike = async(jobId: string) => {
+    try {
+      const response = await axios.post('/api/jobs/liked-jobs', { jobId },{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      
+      if (response.status === 200) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        dispatch(fetchProfileData() as any);
+      }
+    } catch (error) {
+      console.error('Error updating job like status:', error);
+    }
+  };
+  
+
 
   const fetchJobs = async () => {
     try {
@@ -114,6 +149,12 @@ export default function JobsPage() {
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
+  const sanitizeHTML = (html: string): string => {
+    const parser = new DOMParser();
+    const parsedDoc = parser.parseFromString(html, 'text/html');
+    return parsedDoc.body.textContent || "";
+  };
+  
 
   return (
     <>
@@ -279,6 +320,31 @@ export default function JobsPage() {
           {jobs.length > 0 ? (
             jobs.map((job) => (
               <Box key={job._id} className={styles.card}>
+                {likedJobs.includes(job._id) ? (
+          <FavoriteIcon
+            className={styles.heartIcon}
+            onClick={() => toggleLike(job._id)}
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              color: 'red',
+              cursor: 'pointer',
+            }}
+          />
+        ) : (
+          <FavoriteBorderIcon
+            className={styles.heartIcon}
+            onClick={() => toggleLike(job._id)}
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              color: 'red',
+              cursor: 'pointer',
+            }}
+          />
+        )}
                 <CardMedia
                   component="img"
                   height="140"
@@ -295,9 +361,10 @@ export default function JobsPage() {
                 <p className={styles.cardExperience}>
                   Experience: {job.experience}
                 </p>
-                <p className={styles.cardRequirements}>
-                  Requirements: {job.requirements}
-                </p>
+                <p
+            className={styles.cardRequirements}
+            dangerouslySetInnerHTML={{ __html: sanitizeHTML(job.requirements) }}
+          />
               </Box>
             ))
           ) : (

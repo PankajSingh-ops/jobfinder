@@ -18,6 +18,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import Cookies from "js-cookie";
 import dynamic from 'next/dynamic';
+import { SingleImageDropzone } from "@/app/common/image upload/SingleImageUpload";
+import { useEdgeStore } from "@/lib/edgestore";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -75,6 +77,7 @@ const Home: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [file, setFile] = useState<File>();
   const { user } = useSelector((state: RootState) => state.auth);
 
 
@@ -82,17 +85,31 @@ const Home: React.FC = () => {
   const states = selectedCountry ? State.getStatesOfCountry(selectedCountry) : [];
   const cities = selectedState ? City.getCitiesOfState(selectedCountry, selectedState) : [];
   let token=null;
+  const { edgestore } = useEdgeStore();
+
 
   if (typeof window !== 'undefined') {
     token = Cookies.get("token");
   }
-  console.log(token,"token");
-  
+  const handleUpload = async () => {
+    if (file) {
+      const res = await edgestore.publicFiles.upload({
+        file,
+        onProgressChange: (progress) => {
+          console.log(progress);
+        },
+      });
+
+      return res.url;
+    }
+  };
 
   const handleSave = async () => {
+    const CompanyPic=await handleUpload()
     const companyData = {
         ...company,
         companyName: user?.companyname || '',
+        companyLogo:CompanyPic,
         headquarters: {
             city: selectedCity,
             state: selectedState,
@@ -106,6 +123,7 @@ const Home: React.FC = () => {
         },
       });
       alert("Data saved successfully!");
+      setFile(undefined)
     } catch (error) {
       console.error("Error saving company data: ", error);
     }
@@ -119,7 +137,14 @@ const Home: React.FC = () => {
             Add Company
         </Typography>
         <Grid container spacing={4}>
-          {/* Company Name */}
+          <Grid item xs={12} sm={6}>
+                <SingleImageDropzone
+                  width={200}
+                  height={200}
+                  value={file}
+                  onChange={(file) => setFile(file)}
+                />
+              </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
