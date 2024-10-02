@@ -32,6 +32,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useDispatch } from "react-redux";
 import { fetchProfileData } from "@/store/slices/profileSlice";
+import { useRouter } from "next/navigation";
 
 
 
@@ -79,6 +80,7 @@ export default function JobsPage() {
   const token = Cookies.get("token");
   const dispatch=useDispatch()
   const { likedJobs } = useSelector((state: RootState) => state.profile);
+  const router=useRouter()
 
 
 
@@ -114,7 +116,7 @@ export default function JobsPage() {
   };
 
   // Reset filters
-  const resetFilters = () => {
+  const resetFilters = async() => {
     setFilters({
       industry: "",
       location: "",
@@ -124,7 +126,15 @@ export default function JobsPage() {
       jobType: "",
       experience: "",
     });
-    fetchJobs();
+    try {
+      setLoading(true)
+      const response = await axios.post("/api/jobs/view-jobs", {});
+      setJobs(response?.data?.jobs);
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }finally{
+        setLoading(false)
+    }
   };
 
   const handleFilterChange = (
@@ -319,7 +329,7 @@ export default function JobsPage() {
         <Box mt={4} display="flex" flexWrap="wrap" gap={4} justifyContent="center">
           {jobs.length > 0 ? (
             jobs.map((job) => (
-              <Box key={job._id} className={styles.card}>
+              <Box key={job._id} className={styles.card} onClick={()=>router.push(`/jobs/details/${job._id}`)}>
                 {likedJobs.includes(job._id) ? (
           <FavoriteIcon
             className={styles.heartIcon}

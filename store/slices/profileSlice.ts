@@ -48,6 +48,7 @@ interface ProfileState {
   ITSkills: Array<{ skill: string; experienceMonths: number; experienceYears: number }>;
   education: Education;
   likedJobs: string[];
+  profilePic: string;
 }
 
 const initialState: ProfileState = {
@@ -76,6 +77,7 @@ const initialState: ProfileState = {
   lovesOfficeParties: '',
   interests: [],
   likedJobs: [],
+  profilePic:'',
   softSkills: {
     communication: 0,
     leadership: 0,

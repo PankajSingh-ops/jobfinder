@@ -20,6 +20,8 @@ export default function Header() {
   const isMobile = useMediaQuery("(max-width: 600px)"); // Use media query to detect mobile view
   const router = useRouter();
   const { isLogin, user } = useSelector((state: RootState) => state.auth);
+  const { profilePic } = useSelector((state: RootState) => state.profile);
+
   const dispatch: AppDispatch = useDispatch();
 
   const toggleMenu = () => {
@@ -36,9 +38,19 @@ export default function Header() {
   };
 
   const getProfileImage = () => {
-    if (user?.gender === "male") return "/images/profile/boy5.png";
-    if (user?.gender === "female") return "/images/profile/girl1.png";
-    return "/images/profile/other.png";
+    if (profilePic) {
+      return profilePic;
+    }
+    if (user?.gender === "male") {
+      return "/images/profile/boy5.png";
+    }
+    if (user?.gender === "female") {
+      return "/images/profile/girl1.png";
+    }
+    if (user?.gender === "other") {
+      return "/images/profile/girl2.png";
+    }
+    return "/images/profile/default.png";
   };
 
   useEffect(() => {
@@ -77,24 +89,37 @@ export default function Header() {
           {!isLogin ? (
             <>
               <li>
-                <span className={styles.spanLink} onClick={() => router.push("/auth/login")}>Login</span>
+                <span
+                  className={styles.spanLink}
+                  onClick={() => router.push("/auth/login")}
+                >
+                  Login
+                </span>
               </li>
               <li>
-                <span className={styles.spanLink} onClick={() => router.push("/auth/signup")}>Signup</span>
+                <span
+                  className={styles.spanLink}
+                  onClick={() => router.push("/auth/signup")}
+                >
+                  Signup
+                </span>
               </li>
             </>
           ) : (
             <>
               <ul className={styles.comapniesandjobUl}>
-                <li onClick={()=>router.push('/company')}>
+                <li onClick={() => router.push("/company")}>
                   <span className={styles.spanLink}>Companies</span>
                 </li>
-                <li onClick={()=>router.push('/jobs')}>
+                <li onClick={() => router.push("/jobs")}>
                   <span className={styles.spanLink}>Jobs</span>
                 </li>
               </ul>
               {!menuOpen && (
-                <div className={styles.profileContainer} onClick={toggleDropdown}>
+                <div
+                  className={styles.profileContainer}
+                  onClick={toggleDropdown}
+                >
                   <Image
                     src={getProfileImage()}
                     alt="Profile Image"

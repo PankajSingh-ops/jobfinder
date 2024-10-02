@@ -119,7 +119,7 @@ const companySchema: Schema = new Schema(
 );
 
 // Prevent model overwrite issue in development mode
-const Company =
-  mongoose.models.Company || mongoose.model<ICompany>("Company", companySchema);
+const Company = mongoose.models.Company || mongoose.model<ICompany>('Company', companySchema);
 
 export default Company;
+

@@ -10,6 +10,7 @@
     flex-direction: column;
     width: 22%;
     position: relative;
+    cursor: pointer;
   }
   
   .card:hover {
