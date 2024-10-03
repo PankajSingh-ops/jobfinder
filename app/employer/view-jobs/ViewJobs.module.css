@@ -47,7 +47,7 @@
   }
   @media (max-width:550px){
     .cardmain{
-        max-width: 50% !important;
+        max-width: 100% !important;
       }
   }
   

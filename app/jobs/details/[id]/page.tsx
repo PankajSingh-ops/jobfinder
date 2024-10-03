@@ -26,8 +26,11 @@ import {
   School,
   Code,
   Business,
-  CalendarToday
+  CalendarToday,
 } from '@mui/icons-material'
+import PeopleIcon from '@mui/icons-material/People';
+import { RootState } from '@/store'
+import { useSelector } from 'react-redux'
 
 // Define the structure for Company details
 interface CompanyDetails {
@@ -86,6 +89,9 @@ export default function JobDetailsPage() {
   const [jobDetails, setJobDetails] = useState<JobDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const {user} = useSelector((state: RootState) => state.auth);
+  
+
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -207,7 +213,7 @@ export default function JobDetailsPage() {
             value={`${jobDetails.companyId.headquarters.city}, ${jobDetails.companyId.headquarters.state}, ${jobDetails.companyId.headquarters.country}`} 
           />
           <DetailItem 
-            icon={<AttachMoney color="primary" />} 
+            icon={<PeopleIcon color="primary" />} 
             label="Total Employees" 
             value={jobDetails.companyId.totalEmployees.toString()} 
           />
@@ -222,6 +228,7 @@ export default function JobDetailsPage() {
             value={jobDetails.companyId.workingCulture.join(", ")} 
           />
           <Divider sx={{ mb: 2 }} />
+          {user?.userType=="employer"?null:(
           <Button 
             variant="contained" 
             color="primary" 
@@ -231,6 +238,7 @@ export default function JobDetailsPage() {
           >
             Apply
           </Button>
+)}
         </Paper>
 }
       </Container>

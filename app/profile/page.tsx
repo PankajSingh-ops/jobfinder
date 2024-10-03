@@ -564,15 +564,10 @@ function ProfilePage() {
       <Header />
 
       <Box className={styles.ProfileMainPage}>
-        <Box sx={{ padding: 2 }}>
+        <Box sx={{ padding: 2 }} className={styles.profileSecondMainpage}>
           <Card
             elevation={3}
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              position: "relative",
-            }}
+            className={styles.cardProfile}
           >
             <CardContent>
               <Box
@@ -641,7 +636,7 @@ function ProfilePage() {
                 {loading ? ( // Skeleton for fullname
                   <Skeleton variant="text" width="40%" />
                 ) : (
-                  <Typography variant="h5" component="div">
+                  <Typography variant="h5" component="div" className={styles.namePart}>
                     {profileData.fullname}
                     <IconButton onClick={handleOpen} sx={{ ml: 1 }}>
                       <EditIcon />
@@ -663,7 +658,7 @@ function ProfilePage() {
                   <Skeleton variant="text" width="100%" animation="wave" />
                 </>
               ) : (
-                <Box sx={{ display: "flex" }}>
+                <Box sx={{ display: "flex",flexWrap:'wrap' }}>
                   {/* First Card Content */}
                   <CardContent>
                     <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>

@@ -29,4 +29,23 @@
     color: white;
     border-color: #007bff;
   }
+  .cardProfile{
+    display: flex;
+    align-items: center;
+  }
   
+  @media (max-width:600px){
+    .ProfileMainPage{
+      width: 100%;
+    }
+    .cardProfile{
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .namePart{
+      text-align: center;
+      margin-top: 1rem;
+    }
+  }
