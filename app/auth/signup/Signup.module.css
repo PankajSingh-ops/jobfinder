@@ -69,6 +69,12 @@
     font-size: 16px;
     padding: 10px 20px;
   }
+  .loader{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+  }
   
   @media (max-width: 768px) {
     .roleSelection {

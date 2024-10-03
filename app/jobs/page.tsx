@@ -329,7 +329,7 @@ export default function JobsPage() {
         <Box mt={4} display="flex" flexWrap="wrap" gap={4} justifyContent="center">
           {jobs.length > 0 ? (
             jobs.map((job) => (
-              <Box key={job._id} className={styles.card} onClick={()=>router.push(`/jobs/details/${job._id}`)}>
+              <Box key={job._id} className={styles.card}>
                 {likedJobs.includes(job._id) ? (
           <FavoriteIcon
             className={styles.heartIcon}
@@ -361,12 +361,11 @@ export default function JobsPage() {
                   image={job.jobProfileUrl || "/images/jobs.avif"}
                   alt={job.jobTitle}
                   className={styles.cardImage}
+                  onClick={()=>router.push(`/jobs/details/${job._id}`)}
                 />
                 <h2 className={styles.cardTitle}>{job.jobTitle}</h2>
                 <p className={styles.cardLocation}>{job.location}</p>
-                <p className={styles.cardSalary}>
-                  {job.salaryFrom} - {job.salaryTo}
-                </p>
+                <p className={styles.cardSalary}>`₹{job.salaryFrom} - ₹{job.salaryTo}`</p>
                 <p className={styles.cardType}>Job Type: {job.jobType}</p>
                 <p className={styles.cardExperience}>
                   Experience: {job.experience}

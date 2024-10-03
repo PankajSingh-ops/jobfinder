@@ -18,7 +18,7 @@ import styles from "./AddJobs.module.css";
 import { SingleImageDropzone } from "@/app/common/image upload/SingleImageUpload";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Circles } from "react-loader-spinner";
+import { ThreeDots } from "react-loader-spinner";
 import Header from "@/app/common/ui/Header";
 import { useRouter } from "next/navigation";
 import {
@@ -189,13 +189,13 @@ const JobPosting = () => {
         </Typography>
         {loading ? (
           <div className={styles.loader}>
-            <Circles
-              height="80"
-              width="80"
-              color="#4fa94d"
-              ariaLabel="circles-loading"
-              visible={true}
-            />
+             <ThreeDots
+            height="80"
+            width="80"
+            color="#0073e6"
+            ariaLabel="three-dots-loading"
+            visible={true}
+          />
           </div>
         ) : (
           <form onSubmit={handleSubmit}>

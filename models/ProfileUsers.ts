@@ -39,6 +39,7 @@ interface IProfileUsers extends Document {
   softSkills?: { [key: string]: number }; // Updated type
   ITSkills?: { skill: string; experienceMonths: number; experienceYears: number }[]; // Updated type
   likedJobs?: mongoose.Schema.Types.ObjectId[]; // Array of liked job IDs
+  appliedJobs?: mongoose.Schema.Types.ObjectId[]; // Array of liked job IDs
   education?: {
     class10?: IEducation;
     class12?: IEducation;
@@ -84,6 +85,12 @@ const ProfileUsersSchema = new mongoose.Schema<IProfileUsers>({
   lovesTravelling: String,
   lovesOfficeParties: String,
   likedJobs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'JobPost',
+    },
+  ],
+  appliedJobs: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'JobPost',

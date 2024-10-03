@@ -19,7 +19,7 @@ export async function GET(
     }
 
     // Find the job post and populate the companyId
-    const jobPost = await JobPost.findById(id).populate('companyId');
+    const jobPost = await JobPost.findById(id).populate('companyId').populate('usersId');;
 
     if (!jobPost) {
       return NextResponse.json({ message: 'Job post not found' }, { status: 404 });

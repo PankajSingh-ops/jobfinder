@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
     await dbConnect(); // Connect to MongoDB
 
     const body = await req.json();
-    console.log(body,"compnay body");
     
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

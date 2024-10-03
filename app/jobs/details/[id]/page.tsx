@@ -15,7 +15,12 @@ import {
   Box,
   Skeleton,
   Alert,
-  Button // Import Button from MUI
+  Button, // Import Button from MUI
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  DialogActions
 } from '@mui/material'
 import {
   WorkOutline,
@@ -31,6 +36,9 @@ import {
 import PeopleIcon from '@mui/icons-material/People';
 import { RootState } from '@/store'
 import { useSelector } from 'react-redux'
+import { MultiFileDropzone,type FileState, } from '@/app/common/image upload/MultipleFileUpload'
+import { useEdgeStore } from '@/lib/edgestore'
+import styles from '../../JobCard.module.css'
 
 // Define the structure for Company details
 interface CompanyDetails {
@@ -48,6 +56,20 @@ interface CompanyDetails {
   workingCulture: string[]
   website: string
 }
+interface UserDetails {
+  _id: string;
+  fullname: string;
+  email: string;
+  phone: string;
+  permanentAddress: string;
+  profilePic: string; // Base64 image string
+  pincode: string;
+  additionalInfo: string;
+  resumeUrls: string[]; // Array of URLs
+  profileId: string;
+  jobId: string;
+}
+
 
 // Update the JobDetails interface to include companyId
 interface JobDetails {
@@ -71,6 +93,7 @@ interface JobDetails {
   employmentType: string
   jobProfileUrl: string
   companyId: CompanyDetails; // Include company details
+  usersId:UserDetails[];
 }
 
 const DetailItem: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
@@ -85,32 +108,97 @@ const DetailItem: React.FC<{ icon: React.ReactNode; label: string; value: string
 
 export default function JobDetailsPage() {
   const { id } = useParams<{ id: string }>()
+  const { edgestore } = useEdgeStore();
 
   const [jobDetails, setJobDetails] = useState<JobDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [openDialog, setOpenDialog] = useState(false)
+  const [fileStates, setFileStates] = useState<FileState[]>([]);
+  const [profileData, setProfileData] = useState({
+    fullname: '',
+    email: '',
+    phone: '',
+    permanentAddress: '',
+    profilePic: '',
+    pincode: '',
+    additionalInfo: '',
+    resumeUrls: [] as string[],
+    profileId:''
+
+  })
+
+
   const {user} = useSelector((state: RootState) => state.auth);
-  
+  const {fullname,email,phone,permanentAddress,profilePic,pincode,_id} = useSelector((state: RootState) => state.profile);
+  const fetchJobDetails = async () => {
+    try {
+      const response = await axios.get(`/api/jobs/view-details/${id}`)
+      setJobDetails(response.data.job)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching job details:', error)
+      setError('Failed to load job details. Please try again later.')
+      setLoading(false)
+    }
+  }
 
 
   useEffect(() => {
-    const fetchJobDetails = async () => {
-      try {
-        const response = await axios.get(`/api/jobs/view-details/${id}`)
-        setJobDetails(response.data.job)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error fetching job details:', error)
-        setError('Failed to load job details. Please try again later.')
-        setLoading(false)
-      }
-    }
-
     if (id) {
       fetchJobDetails()
     }
-  }, [id])
+    setProfileData(prevData => ({
+      ...prevData,
+      fullname,
+      email,
+      phone,
+      permanentAddress,
+      profilePic,
+      pincode,
+      profileId:_id
+    }))
+  }, [id,_id])
+  
+  const handleOpenDialog = () => {
+    setOpenDialog(true)
+  }
 
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+  }
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setProfileData(prevData => ({
+      ...prevData,
+      [name]: value
+    }))
+  }
+  function updateFileProgress(key: string, progress: FileState['progress']) {
+    setFileStates((fileStates) => {
+      const newFileStates = structuredClone(fileStates);
+      const fileState = newFileStates.find(
+        (fileState) => fileState.key === key,
+      );
+      if (fileState) {
+        fileState.progress = progress;
+      }
+      return newFileStates;
+    });
+  }
+  const handleApply = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.post(`/api/jobs/applied-jobs/${id}`,{profileData})
+      setLoading(false)
+      console.log(response);
+    } catch (error) {
+      console.error('Error fetching job details:', error)
+      setLoading(false)
+    }
+    handleCloseDialog()
+  }
   if (loading) {
     return (
       <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -141,7 +229,7 @@ export default function JobDetailsPage() {
   return (
     <>
       <Header />
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 4 }} className={styles.jobDetailsMain}>
         <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
           <Grid container spacing={3} alignItems="center">
             <Grid item>
@@ -183,7 +271,7 @@ export default function JobDetailsPage() {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3, overflow:'hidden' }}>
               <Typography variant="h6" gutterBottom>Job Details</Typography>
               <Divider sx={{ mb: 2 }} />
               <DetailItem icon={<WorkOutline color="primary" />} label="Experience" value={jobDetails.experience} />
@@ -234,13 +322,125 @@ export default function JobDetailsPage() {
             color="primary" 
             fullWidth 
             sx={{ mt: 2 }}
-            onClick={() => alert('Applied!')} // Placeholder for apply action
+            onClick={handleOpenDialog}
+            disabled={jobDetails?.usersId?.some(user => user.profileId === _id)}
           >
-            Apply
-          </Button>
+{jobDetails?.usersId?.some(user => user.profileId === _id) ? "Already Applied for Job" : "Apply for Job"}
+</Button>
 )}
         </Paper>
 }
+<Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>Apply for {jobDetails?.jobTitle}</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              id="fullname"
+              name="fullname"
+              label="Full Name"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={profileData.fullname}
+              onChange={handleInputChange}
+            />
+            <TextField
+              margin="dense"
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              fullWidth
+              variant="outlined"
+              value={profileData.email}
+              onChange={handleInputChange}
+            />
+            <TextField
+              margin="dense"
+              id="phone"
+              name="phone"
+              label="Phone"
+              type="tel"
+              fullWidth
+              variant="outlined"
+              value={profileData.phone}
+              onChange={handleInputChange}
+            />
+            <TextField
+              margin="dense"
+              id="permanentAddress"
+              name="permanentAddress"
+              label="Permanent Address"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={profileData.permanentAddress}
+              onChange={handleInputChange}
+            />
+            <TextField
+              margin="dense"
+              id="pincode"
+              name="pincode"
+              label="Pincode"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={profileData.pincode}
+              onChange={handleInputChange}
+            />
+            <TextField
+              margin="dense"
+              id="additionalInfo"
+              name="additionalInfo"
+              label="Additional Information"
+              type="text"
+              fullWidth
+              variant="outlined"
+              multiline
+              rows={4}
+              value={profileData.additionalInfo}
+              onChange={handleInputChange}
+            />
+             <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Add Resume</Typography>
+            <MultiFileDropzone
+              value={fileStates}
+              onChange={(files) => {
+                setFileStates(files);
+              }}
+              onFilesAdded={async (addedFiles) => {
+                setFileStates([...fileStates, ...addedFiles]);
+                await Promise.all(
+                  addedFiles.map(async (addedFileState) => {
+                    try {
+                      const res = await edgestore.publicFiles.upload({
+                        file: addedFileState.file,
+                        onProgressChange: async (progress) => {
+                          updateFileProgress(addedFileState.key, progress);
+                          if (progress === 100) {
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                            updateFileProgress(addedFileState.key, 'COMPLETE');
+                          }
+                        },
+                      });
+                      console.log(res);
+                      setProfileData(prevData => ({
+                        ...prevData,
+                        resumeUrls: [...prevData.resumeUrls, res.url]
+                      }));
+                    } catch (err) {
+                      console.log(err);     
+                      updateFileProgress(addedFileState.key, 'ERROR');
+                    }
+                  }),
+                );
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={handleApply} variant="contained" color="primary">Apply</Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </>
   )

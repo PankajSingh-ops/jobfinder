@@ -756,7 +756,7 @@ function ProfilePage() {
         </Box>
 
         {/* Bottom Cards Section */}
-        <Grid container spacing={2} sx={{ padding: 2 }}>
+        <Grid container spacing={2} sx={{ padding: 2 }} className={styles.bottomLeftAndRight}>
           {/* Left Side - Single Card */}
           {loading ? (
             <Skeleton
@@ -766,7 +766,7 @@ function ProfilePage() {
               animation="wave"
             />
           ) : (
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={3} className={styles.leftSideBar}>
               <Card elevation={3}>
                 <CardContent>
                   {sections.map((section, index) => (

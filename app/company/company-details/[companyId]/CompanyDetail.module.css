@@ -1,0 +1,88 @@
+.container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  
+  .loading, .error {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.5rem;
+  }
+  
+  .headerCard {
+    margin-bottom: 2rem;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .companyLogo {
+    height: 250px;
+    object-fit: cover;
+  }
+  
+  .headerContent {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 1rem;
+  }
+  
+  .companyName {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subCompanyName {
+    margin-bottom: 1rem;
+  }
+  
+  .industryChip {
+    margin-top: 0.5rem;
+  }
+  
+  .sectionTitle {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .descriptionCard, .infoCard, .cultureCard {
+    margin-bottom: 2rem;
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  
+  .descriptionCard:hover, .infoCard:hover, .cultureCard:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .infoGrid {
+    margin-top: 2rem;
+  }
+  
+  .icon {
+    color: #1976d2;
+  }
+  
+  .cultureChip {
+    margin: 0.5rem;
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  .loader{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  @media (max-width: 600px) {
+    .companyName {
+      font-size: 2rem;
+    }
+  
+    .subCompanyName {
+      font-size: 1.2rem;
+    }
+  }

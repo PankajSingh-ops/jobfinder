@@ -56,7 +56,7 @@ const JobPostSchema: Schema = new Schema({
   usersId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ProfileUsers',
+      ref: 'AppliedJobsProfile',
     },
   ],
 }, { timestamps: true });
