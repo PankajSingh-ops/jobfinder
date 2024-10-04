@@ -13,6 +13,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { NextWeek, ViewList } from "@mui/icons-material";
 import { fetchProfileData } from "@/store/slices/profileSlice";
 import MobileHeader from "./MobileHeader"; // Import the MobileHeader component
+import { Table2 } from "lucide-react";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -142,9 +143,17 @@ export default function Header() {
                       <AccountCircleIcon className={styles.icon} />
                       <span className={styles.spanLink1}>Profile</span>
                     </li>
+                    {isLogin&&user?.userType ==="jobseeker"&&(
+                      <>
+                       <li onClick={() => router.push("/User/dashboard")}>
+                        <Table2 className={styles.icon} />
+                        <span className={styles.spanLink1}>Dashboard</span>
+                      </li>
+                      </>
+                    )}
                     {isLogin && user?.userType === "employer" && (
                       <>
-                        <li onClick={() => router.push("/company/add-company")}>
+                        <li onClick={() => router.push("/company/my-company")}>
                           <NextWeek className={styles.icon} />
                           <span className={styles.spanLink1}>My Company</span>
                         </li>

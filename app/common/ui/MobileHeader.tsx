@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/slices/authSlice";
 import Image from "next/image";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import styles from "./MobileHeader.module.css"; // Create separate CSS module for mobile header
 
 export default function MobileHeader() {
@@ -32,16 +32,26 @@ export default function MobileHeader() {
           width={100}
           height={50}
           onClick={() => router.push("/")}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         />
       </div>
-      
+
       <div className={styles.burger} onClick={toggleMenu}>
-        {menuOpen ? <CloseIcon /> : <div className={styles.burger} onClick={toggleMenu}>
-        <div className={`${styles.line} ${menuOpen ? styles.line1 : ""}`}></div>
-        <div className={`${styles.line} ${menuOpen ? styles.line2 : ""}`}></div>
-        <div className={`${styles.line} ${menuOpen ? styles.line3 : ""}`}></div>
-      </div>}
+        {menuOpen ? (
+          <CloseIcon />
+        ) : (
+          <div className={styles.burger} onClick={toggleMenu}>
+            <div
+              className={`${styles.line} ${menuOpen ? styles.line1 : ""}`}
+            ></div>
+            <div
+              className={`${styles.line} ${menuOpen ? styles.line2 : ""}`}
+            ></div>
+            <div
+              className={`${styles.line} ${menuOpen ? styles.line3 : ""}`}
+            ></div>
+          </div>
+        )}
       </div>
 
       {menuOpen && (
@@ -55,17 +65,30 @@ export default function MobileHeader() {
             ) : (
               <>
                 <li onClick={() => router.push("/profile")}>Profile</li>
-                <li onClick={()=>router.push('/company')}>
+                <li onClick={() => router.push("/company")}>
                   <span className={styles.spanLink}>Companies</span>
                 </li>
-                <li onClick={()=>router.push('/jobs')}>
+                <li onClick={() => router.push("/jobs")}>
                   <span className={styles.spanLink}>Jobs</span>
                 </li>
+                {isLogin && user?.userType === "jobseeker" && (
+                  <>
+                    <li onClick={() => router.push("/User/dashboard")}>
+                      <span className={styles.spanLink1}>Dashboard</span>
+                    </li>
+                  </>
+                )}
                 {user?.userType === "employer" && (
                   <>
-                    <li onClick={() => router.push("/company/add-company")}>My Company</li>
-                    <li onClick={() => router.push("/employer/add-jobs")}>Add Job</li>
-                    <li onClick={() => router.push("/employer/view-jobs")}>View Job</li>
+                    <li onClick={() => router.push("/company/add-company")}>
+                      My Company
+                    </li>
+                    <li onClick={() => router.push("/employer/add-jobs")}>
+                      Add Job
+                    </li>
+                    <li onClick={() => router.push("/employer/view-jobs")}>
+                      View Job
+                    </li>
                   </>
                 )}
                 <li onClick={handleLogout}>Signout</li>

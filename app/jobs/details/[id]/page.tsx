@@ -129,7 +129,7 @@ export default function JobDetailsPage() {
   })
 
 
-  const {user} = useSelector((state: RootState) => state.auth);
+  const {user, isLogin} = useSelector((state: RootState) => state.auth);
   const {fullname,email,phone,permanentAddress,profilePic,pincode,_id} = useSelector((state: RootState) => state.profile);
   const fetchJobDetails = async () => {
     try {
@@ -316,7 +316,7 @@ export default function JobDetailsPage() {
             value={jobDetails.companyId.workingCulture.join(", ")} 
           />
           <Divider sx={{ mb: 2 }} />
-          {user?.userType=="employer"?null:(
+          {!isLogin || user?.userType=="employer" ||user?.userType=="admin"?null:(
           <Button 
             variant="contained" 
             color="primary" 
