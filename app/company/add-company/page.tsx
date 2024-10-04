@@ -17,18 +17,17 @@ import Header from "@/app/common/ui/Header";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import Cookies from "js-cookie";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import { SingleImageDropzone } from "@/app/common/image upload/SingleImageUpload";
 import { useEdgeStore } from "@/lib/edgestore";
 
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 export interface ICompany {
   userId: string;
   companyLogo: string;
   companyName: string;
-  subCompanyName:string;
+  subCompanyName: string;
   description: string;
   totalEmployees: number;
   totalDepartments: number;
@@ -56,7 +55,7 @@ const initialCompanyState: ICompany = {
   userId: "",
   companyLogo: "",
   companyName: "",
-  subCompanyName:"",
+  subCompanyName: "",
   description: "",
   totalEmployees: 0,
   totalDepartments: 0,
@@ -80,15 +79,17 @@ const Home: React.FC = () => {
   const [file, setFile] = useState<File>();
   const { user } = useSelector((state: RootState) => state.auth);
 
-
   const countries = Country.getAllCountries();
-  const states = selectedCountry ? State.getStatesOfCountry(selectedCountry) : [];
-  const cities = selectedState ? City.getCitiesOfState(selectedCountry, selectedState) : [];
-  let token=null;
+  const states = selectedCountry
+    ? State.getStatesOfCountry(selectedCountry)
+    : [];
+  const cities = selectedState
+    ? City.getCitiesOfState(selectedCountry, selectedState)
+    : [];
+  let token = null;
   const { edgestore } = useEdgeStore();
 
-
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     token = Cookies.get("token");
   }
   const handleUpload = async () => {
@@ -105,25 +106,27 @@ const Home: React.FC = () => {
   };
 
   const handleSave = async () => {
-    const CompanyPic=await handleUpload()
+    const CompanyPic = await handleUpload();
     const companyData = {
-        ...company,
-        companyName: user?.companyname || '',
-        companyLogo:CompanyPic,
-        headquarters: {
-            city: selectedCity,
-            state: selectedState,
-            country: selectedCountry,
-          },
-      };
+      ...company,
+      companyName: user?.companyname || "",
+      companyLogo: CompanyPic,
+      headquarters: {
+        city: selectedCity,
+        state: selectedState,
+        country: selectedCountry,
+      },
+    };
     try {
       await axios.post("/api/company/add-company", companyData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      alert("Data saved successfully!");
-      setFile(undefined)
+      setFile(undefined);
+      setSelectedCountry("");
+      setSelectedState("");
+      setSelectedCity("");
     } catch (error) {
       console.error("Error saving company data: ", error);
     }
@@ -134,17 +137,17 @@ const Home: React.FC = () => {
       <Header />
       <Container maxWidth="md">
         <Typography variant="h4" gutterBottom textAlign="center">
-            Add Company
+          Add Company
         </Typography>
         <Grid container spacing={4}>
           <Grid item xs={12} sm={6}>
-                <SingleImageDropzone
-                  width={200}
-                  height={200}
-                  value={file}
-                  onChange={(file) => setFile(file)}
-                />
-              </Grid>
+            <SingleImageDropzone
+              width={200}
+              height={200}
+              value={file}
+              onChange={(file) => setFile(file)}
+            />
+          </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -154,7 +157,7 @@ const Home: React.FC = () => {
               InputProps={{
                 readOnly: true,
               }}
-              />
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
@@ -162,7 +165,9 @@ const Home: React.FC = () => {
               label="Sub Company Name"
               variant="outlined"
               value={company.subCompanyName}
-              onChange={(e) => setCompany({ ...company, subCompanyName: e.target.value })}
+              onChange={(e) =>
+                setCompany({ ...company, subCompanyName: e.target.value })
+              }
             />
           </Grid>
 
@@ -174,7 +179,12 @@ const Home: React.FC = () => {
               type="number"
               variant="outlined"
               value={company.totalEmployees}
-              onChange={(e) => setCompany({ ...company, totalEmployees: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setCompany({
+                  ...company,
+                  totalEmployees: parseInt(e.target.value),
+                })
+              }
             />
           </Grid>
 
@@ -187,7 +197,10 @@ const Home: React.FC = () => {
               variant="outlined"
               value={company.totalDepartments}
               onChange={(e) =>
-                setCompany({ ...company, totalDepartments: parseInt(e.target.value) })
+                setCompany({
+                  ...company,
+                  totalDepartments: parseInt(e.target.value),
+                })
               }
             />
           </Grid>
@@ -201,7 +214,10 @@ const Home: React.FC = () => {
               placeholder="E.g. Collaborative, Remote-first"
               value={company.workingCulture.join(", ")}
               onChange={(e) =>
-                setCompany({ ...company, workingCulture: e.target.value.split(", ") })
+                setCompany({
+                  ...company,
+                  workingCulture: e.target.value.split(", "),
+                })
               }
             />
           </Grid>
@@ -266,7 +282,9 @@ const Home: React.FC = () => {
               label="Industry"
               variant="outlined"
               value={company.industry}
-              onChange={(e) => setCompany({ ...company, industry: e.target.value })}
+              onChange={(e) =>
+                setCompany({ ...company, industry: e.target.value })
+              }
             />
           </Grid>
 
@@ -277,7 +295,9 @@ const Home: React.FC = () => {
               label="Company Website"
               variant="outlined"
               value={company.website}
-              onChange={(e) => setCompany({ ...company, website: e.target.value })}
+              onChange={(e) =>
+                setCompany({ ...company, website: e.target.value })
+              }
             />
           </Grid>
 
@@ -288,22 +308,33 @@ const Home: React.FC = () => {
               label="Contact Email"
               variant="outlined"
               value={company.contactEmail}
-              onChange={(e) => setCompany({ ...company, contactEmail: e.target.value })}
+              onChange={(e) =>
+                setCompany({ ...company, contactEmail: e.target.value })
+              }
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-  <TextField
-    fullWidth
-    label="Founded Date"
-    type="date"
-    variant="outlined"
-    value={company.foundedDate ? company.foundedDate.toISOString().split('T')[0] : ""}
-    onChange={(e) => setCompany({ ...company, foundedDate: new Date(e.target.value) })}
-    InputLabelProps={{
-      shrink: true,
-    }}
-  />
-</Grid>
+            <TextField
+              fullWidth
+              label="Founded Date"
+              type="date"
+              variant="outlined"
+              value={
+                company.foundedDate
+                  ? company.foundedDate.toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                setCompany({
+                  ...company,
+                  foundedDate: new Date(e.target.value),
+                })
+              }
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Grid>
 
           {/* Social Links */}
           <Grid item xs={12} sm={4}>
@@ -314,7 +345,13 @@ const Home: React.FC = () => {
               placeholder="LinkedIn Profile URL"
               value={company.socialLinks.linkedin}
               onChange={(e) =>
-                setCompany({ ...company, socialLinks: { ...company.socialLinks, linkedin: e.target.value } })
+                setCompany({
+                  ...company,
+                  socialLinks: {
+                    ...company.socialLinks,
+                    linkedin: e.target.value,
+                  },
+                })
               }
               InputProps={{
                 endAdornment: <LinkedIn />,
@@ -330,7 +367,13 @@ const Home: React.FC = () => {
               placeholder="Twitter Profile URL"
               value={company.socialLinks.twitter}
               onChange={(e) =>
-                setCompany({ ...company, socialLinks: { ...company.socialLinks, twitter: e.target.value } })
+                setCompany({
+                  ...company,
+                  socialLinks: {
+                    ...company.socialLinks,
+                    twitter: e.target.value,
+                  },
+                })
               }
               InputProps={{
                 endAdornment: <Twitter />,
@@ -346,7 +389,13 @@ const Home: React.FC = () => {
               placeholder="Facebook Profile URL"
               value={company.socialLinks.facebook}
               onChange={(e) =>
-                setCompany({ ...company, socialLinks: { ...company.socialLinks, facebook: e.target.value } })
+                setCompany({
+                  ...company,
+                  socialLinks: {
+                    ...company.socialLinks,
+                    facebook: e.target.value,
+                  },
+                })
               }
               InputProps={{
                 endAdornment: <Facebook />,
@@ -360,7 +409,9 @@ const Home: React.FC = () => {
             <ReactQuill
               theme="snow"
               value={company.description}
-              onChange={(value) => setCompany({ ...company, description: value })}
+              onChange={(value) =>
+                setCompany({ ...company, description: value })
+              }
               style={{ height: "200px", marginBottom: "30px" }}
             />
           </Grid>

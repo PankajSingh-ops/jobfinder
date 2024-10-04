@@ -88,6 +88,12 @@ export default function Header() {
         <ul>
           {!isLogin ? (
             <>
+              <li onClick={() => router.push("/company")}>
+                <span className={styles.spanLink}>Companies</span>
+              </li>
+              <li onClick={() => router.push("/jobs")}>
+                <span className={styles.spanLink}>Jobs</span>
+              </li>
               <li>
                 <span
                   className={styles.spanLink}
@@ -151,6 +157,12 @@ export default function Header() {
                           <span className={styles.spanLink1}>View Job</span>
                         </li>
                       </>
+                    )}
+                    {isLogin && user?.userType === "admin" && (
+                      <li onClick={() => router.push("/admin/dashboard")}>
+                        <ViewList className={styles.icon} />
+                        <span className={styles.spanLink1}>Dashboard</span>
+                      </li>
                     )}
                     <li onClick={handleLogout}>
                       <LogoutIcon className={styles.icon} />

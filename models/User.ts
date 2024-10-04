@@ -9,7 +9,7 @@ interface IUser extends Document {
   lastName: string;
   gender: string;
   companyName?: string; // Optional for job seekers
-  userType: 'employer' | 'jobseeker'; // Enforced user types
+  userType: 'employer' | 'jobseeker' | 'admin'; // Enforced user types
   agree: boolean;
   otp?:string;
   otpCreatedAt?:Date;
@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema<IUser>({
   },
   userType: {
     type: String,
-    enum: ['employer', 'jobseeker'],
+    enum: ['employer', 'jobseeker', 'admin'],
     required: true,
   },
   agree: {

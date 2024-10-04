@@ -80,6 +80,8 @@ export default function JobsPage() {
   const token = Cookies.get("token");
   const dispatch=useDispatch()
   const { likedJobs } = useSelector((state: RootState) => state.profile);
+  const { isLogin } = useSelector((state: RootState) => state.auth);
+
   const router=useRouter()
 
 
@@ -330,6 +332,7 @@ export default function JobsPage() {
           {jobs.length > 0 ? (
             jobs.map((job) => (
               <Box key={job._id} className={styles.card}>
+                {isLogin&&(<>
                 {likedJobs.includes(job._id) ? (
           <FavoriteIcon
             className={styles.heartIcon}
@@ -354,7 +357,7 @@ export default function JobsPage() {
               cursor: 'pointer',
             }}
           />
-        )}
+        )}</>)}
                 <CardMedia
                   component="img"
                   height="140"

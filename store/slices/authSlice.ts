@@ -8,7 +8,7 @@ interface User {
   email: string;
   gender: 'male' | 'female' | 'other';
   companyname?: string;
-  userType: 'employer' | 'jobseeker';
+  userType: 'employer' | 'jobseeker'|'admin';
 }
 
 interface AuthState {
