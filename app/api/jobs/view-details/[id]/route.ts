@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import JobPost from '@/models/JobPost';
 import Company from '@/models/Company'; // Ensure you are importing the Company model
 import dbConnect from '@/lib/mongo';
+import AppliedJobsProfile from '@/models/AppliedJobs';
+
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +12,8 @@ export async function GET(
   try {
     await dbConnect(); // Connect to the database
     console.log(Company);
+    console.log(AppliedJobsProfile);
+    
     
 
     const id = params.id;

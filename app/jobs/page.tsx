@@ -24,7 +24,7 @@ import {
 } from "../employer/add-jobs/Jobdata";
 import { useMediaQuery } from "@mui/material";
 import styles from "./JobCard.module.css";
-import { Circles } from "react-loader-spinner";
+import { ThreeDots } from "react-loader-spinner";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Cookies from "js-cookie";
@@ -317,13 +317,13 @@ export default function JobsPage() {
         {/* Job List */}
         {loading ? (
           <div className={styles.loader}>
-            <Circles
-              height="80"
-              width="80"
-              color="#4fa94d"
-              ariaLabel="circles-loading"
-              visible={true}
-            />
+           <ThreeDots
+            height="80"
+            width="80"
+            color="#0073e6"
+            ariaLabel="three-dots-loading"
+            visible={true}
+          />
           </div>
         ) : (
         <Box mt={4} display="flex" flexWrap="wrap" gap={4} justifyContent="center">
@@ -365,7 +365,7 @@ export default function JobsPage() {
                 />
                 <h2 className={styles.cardTitle}>{job.jobTitle}</h2>
                 <p className={styles.cardLocation}>{job.location}</p>
-                <p className={styles.cardSalary}>`₹{job.salaryFrom} - ₹{job.salaryTo}`</p>
+                <p className={styles.cardSalary}>₹{job.salaryFrom} - ₹{job.salaryTo}</p>
                 <p className={styles.cardType}>Job Type: {job.jobType}</p>
                 <p className={styles.cardExperience}>
                   Experience: {job.experience}
